@@ -1,0 +1,44 @@
+{
+    "schema": "https",
+    "host": "apps.ticketmatic.com",
+    "port": "",
+    "path": "/api/1/%s/",
+    "urls": {
+	  "list": {
+	    "RelationType":           "tools/queries",
+	    "CustomFieldNewsletter":  "tools/queries",
+	    "AddressType":            "tools/queries",
+	    "PhoneType":              "tools/queries",
+	    "CustomerTitle":          "tools/queries",
+	    "EventName":              "tools/queries",
+	    "PriceTypeName":          "tools/queries"
+	  },
+	  "get": {
+	    "contact": "contacts/%d",
+	    "contacts": "contacts",
+	    "order": "orders/%d",
+	    "orders": "orders",
+	    "logs": "orders/%d/logs",
+	    "event": "events/%d",
+	    "events": "events",
+	    "customfields": "settings/system/customfields",
+	    "pricelist": "settings/pricing/pricelists/%d",
+	    "pricelists": "settings/pricing/pricelists"
+	  },
+	  "post": {
+	    "contact": "contacts",
+	    "order": "orders",
+	    "tickets": "orders/%d/tickets",
+	    "payment": "orders/%d/payments",
+	    "confirm": "orders/%d",
+	    "pricelist": "settings/pricing/pricelists",
+	    "pdf": "orders/%d/pdf"
+	  },
+	  "put": {
+	    "contact": "contacts/%d",
+	    "order": "orders/%d",
+	    "event": "events/%d"
+	  }
+	},
+    "params_optional": ["query", "limit", "offset", "filter", "output"]
+}
