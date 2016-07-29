@@ -14,16 +14,24 @@
 	    "PriceTypeName":          "tools/queries"
 	  },
 	  "get": {
-	    "contact": "contacts/%d",
+	    "contact":  "contacts/%d",
 	    "contacts": "contacts",
-	    "order": "orders/%d",
+	    "order":  "orders/%d",
 	    "orders": "orders",
 	    "logs": "orders/%d/logs",
-	    "event": "events/%d",
+	    "event":  "events/%d",
 	    "events": "events",
 	    "customfields": "settings/system/customfields",
-	    "pricelist": "settings/pricing/pricelists/%d",
-	    "pricelists": "settings/pricing/pricelists"
+	    "pricelist":  "settings/pricing/pricelists/%d",
+	    "pricelists": "settings/pricing/pricelists",
+	    "webskin":  "settings/communicationanddesign/webskins/%d",
+	    "webskins": "settings/communicationanddesign/webskins",
+	    "ordermail":  "settings/communicationanddesign/ordermails/%d",
+	    "ordermails": "settings/communicationanddesign/ordermails",
+	    "ticketlayout":  "settings/communicationanddesign/ticketlayouts/%d",
+	    "ticketlayouts": "settings/communicationanddesign/ticketlayouts",
+	    "ticketlayouttemplate":  "settings/communicationanddesign/ticketlayouttemplates/%d",
+	    "ticketlayouttemplates": "settings/communicationanddesign/ticketlayouttemplates"
 	  },
 	  "post": {
 	    "contact": "contacts",
