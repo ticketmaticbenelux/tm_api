@@ -3,6 +3,23 @@
     "host": "apps.ticketmatic.com",
     "port": "",
     "path": "/api/1/%s/",
+    "endpoints": {
+    	"contacts": "contacts",
+    	"events": "events",
+    	"orders": "orders",
+    	"logs": "orders/%d/logs",
+	    "pdf": "orders/%d/pdf",
+	    "tickets": "orders/%d/tickets",
+	    "payments": "orders/%d/payments",
+	    "confirm": "orders/%d",
+	    "pricelists": "settings/pricing/pricelists",
+    	"customfields": "settings/system/customfields",
+	    "pricelists": "settings/pricing/pricelists",
+	    "webskins": "settings/communicationanddesign/webskins",
+	    "ordermails": "settings/communicationanddesign/ordermails",
+	    "ticketlayouts": "settings/communicationanddesign/ticketlayouts",
+	    "ticketlayouttemplates": "settings/communicationanddesign/ticketlayouttemplates"
+    },
     "urls": {
 	  "list": {
 	    "RelationType":           "tools/queries",
@@ -12,40 +29,6 @@
 	    "CustomerTitle":          "tools/queries",
 	    "EventName":              "tools/queries",
 	    "PriceTypeName":          "tools/queries"
-	  },
-	  "get": {
-	    "contact":  "contacts/%d",
-	    "contacts": "contacts",
-	    "order":  "orders/%d",
-	    "orders": "orders",
-	    "logs": "orders/%d/logs",
-	    "event":  "events/%d",
-	    "events": "events",
-	    "customfields": "settings/system/customfields",
-	    "pricelist":  "settings/pricing/pricelists/%d",
-	    "pricelists": "settings/pricing/pricelists",
-	    "webskin":  "settings/communicationanddesign/webskins/%d",
-	    "webskins": "settings/communicationanddesign/webskins",
-	    "ordermail":  "settings/communicationanddesign/ordermails/%d",
-	    "ordermails": "settings/communicationanddesign/ordermails",
-	    "ticketlayout":  "settings/communicationanddesign/ticketlayouts/%d",
-	    "ticketlayouts": "settings/communicationanddesign/ticketlayouts",
-	    "ticketlayouttemplate":  "settings/communicationanddesign/ticketlayouttemplates/%d",
-	    "ticketlayouttemplates": "settings/communicationanddesign/ticketlayouttemplates"
-	  },
-	  "post": {
-	    "contact": "contacts",
-	    "order": "orders",
-	    "tickets": "orders/%d/tickets",
-	    "payment": "orders/%d/payments",
-	    "confirm": "orders/%d",
-	    "pricelist": "settings/pricing/pricelists",
-	    "pdf": "orders/%d/pdf"
-	  },
-	  "put": {
-	    "contact": "contacts/%d",
-	    "order": "orders/%d",
-	    "event": "events/%d"
 	  }
 	},
     "params_optional": ["query", "limit", "offset", "filter", "output"]

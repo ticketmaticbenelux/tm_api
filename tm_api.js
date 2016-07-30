@@ -3,34 +3,29 @@
 require('http').globalAgent.maxSockets = 5
 require('https').globalAgent.maxSockets = 5
 
-var rest = require('rest')
-var mime = require('rest/interceptor/mime')
-var moment = require('moment')
-var crypto = require('crypto')
-var util = require('util')
+var rest = require('rest'),
+	mime = require('rest/interceptor/mime'),
+	moment = require('moment'),
+	crypto = require('crypto'),
+	util = require('util'),
+	R = require('ramda')
 
 var client = rest.wrap(mime, { mime: 'application/json' })
 
-var cache_enabled = ["AddressType", "PhoneType", "CustomerTitle", "RelationType", 'CustomerTitle', 'AddressType', 'PhoneType', "CustomFieldNewsletter"]
-var cache_list = {}
-var cache_list_promise = {}
-
-var config = { api: require('./tm3_api.json'), authorization: {} }
-
-config.api.base_url = config.api.schema + "://" + config.api.host + config.api.path
+var config = require('./tm3_api.json')
 
 // API offset limit
 var limit = 100
 
 // TM3 Authorization header
-function getHeaders() {
+function getHeaders(client) {
 	var key, auth_scheme, algorithm, timestamp, payload, hmac, signature, auth_header
-	key = config.authorization.key
+	key = client.key
 	auth_scheme = 'TM-HMAC-SHA256'
 	algorithm = 'sha256'
 	timestamp = moment().utc().format('YYYY-MM-DDTHH:mm:ss')
-	payload = key + config.authorization.shortname + timestamp
-	hmac = crypto.createHmac(algorithm, config.authorization.secret)
+	payload = key + client.shortname + timestamp
+	hmac = crypto.createHmac(algorithm, client.secret)
 	hmac.setEncoding('hex')
 	hmac.write(payload)
 	hmac.end()
@@ -39,164 +34,98 @@ function getHeaders() {
 	return {'Authorization': auth_header}
 }
 
-function getDefaultParams() {
-	return {}
-}
-
-function getURL(method, type, id) {
-	if(!(method in config.api.urls)) {
+function getURL(client, type, endpoint, id) {
+	if(!(R.contains(type, ["getList", "get", "post", "put"]))) {
 		return false
 	}
 
-	if(!(type in config.api.urls[method])) {
+	if(!(endpoint in config.endpoints)) {
 		return false
 	}
 
-	var str = config.api.base_url + config.api.urls[method][type]
+	var url_template = config.schema + "://" + config.host + config.path + config.endpoints[endpoint]
+
+	if(type == "get" || type == "put") {
+		url_template += "/%d"
+	}
+
 	var url
 	if(id) {
 		if(typeof id == "object") {
-			url = util.format(str, config.authorization.shortname, id[0], id[1])
+			url = util.format(url_template, client.shortname, id[0], id[1])
 		}
 		else {
-			url = util.format(str, config.authorization.shortname, id)
+			url = util.format(url_template, client.shortname, id)
 		}
 	}
 	else {
-		url = util.format(str, config.authorization.shortname)
+		url = util.format(url_template, client.shortname)
 	}
 
 	return url
 }
 
-/* Todo: Maak list() en get() DRY */
+function getParams(payload) {
+	if(typeof payload === "undefined") {
+		return {}
+	}
 
-/**
- * Recursively loop through API results using offset
- * Returns Promise
- */
-exports.listAll = function(type, payload) {
-	return listRecursively([], type, payload)
+	var params = {}
+	
+	for(var key in payload) {
+		
+		// Skip non-allowed optional attributes
+		if (R.contains(key, config.params_optional)) {
+			console.log("Attribute skipped: %s", key)
+			continue
+		}
+
+		params[key] = payload[key]
+	}
+
+	return params
 }
 
-function listRecursively(data, type, payload) {
-
-	if (typeof payload == "undefined") {
-		payload = {}
-	}
-
-	return listRaw(type, payload)
-		.then(function(result) {
-
-			if (!result.results) {
-				return;
-			}
-
-			// More details on "spread": http://stackoverflow.com/a/30734348/3744180
-			data.push(...result.results)
-
-			if (!(result.results) || result.nbrofresults < (payload.offset+limit) ) {
-				return Promise.resolve(data)
-			}
-
-			if (!("offset" in payload)) {
-				payload.offset = limit
-				payload.limit = limit
-			}
-			else {
-				payload.offset += limit
-				payload.limit = limit
-			}
-
-			return listRecursively(data, type, payload)
-		})
-}
-
-exports.list = function(type, payload)  {
-	return listRaw(type, payload).then(res => {
-		return res.results
-	})
-}
-
-// returns Promise
-exports.listRaw = function(type, payload) {
-
-	var params = getDefaultParams()
-
-	var url = getURL("list", type, null)
-
-	if (!url) {
-		return Promise.reject(new Error('Unknown list ' + type))
-	}
-
-	// use cache?
-	if(type in cache_list) {
-		return Promise.resolve(cache_list[type])
-	}
-	// use promise cache?
-	else if(type in cache_list_promise) {
-		return cache_list_promise[type].then(function(result) {
-			return Promise.resolve(result)
-		})
-	}
-
-	var method = "POST"
-	var options = { method: method, path: url, entity: payload }
-	var headers = getHeaders()
-	if(headers) {
-		options['headers'] = headers
-	}
-
-	var p = client(options).then(function(data) {
+function request(options) {
+	return client(options).then(function(data) {
 		return new Promise(function(resolve, reject) {
 			if (data.status.code == 200) {
-				if(cache_enabled.indexOf(type) >= 0) {
-					// cache api result
-					cache_list[type] = data.entity
-				}
 				resolve(data.entity)
 			}
 			else {
-				app.logger.error({message: "API GET (list) failed: " + type, path: url, response_code: data.status.code, response: data.entity})
+				app.logger.error({message: "API request failed", options: options, response_code: data.status.code, response: data.entity})
 
 				var message
 				if (data.entity.message) {
 					message = data.entity.message
 				}
 				else {
-					message = "Unknown error in API"
+					message = "Onbekende fout in API"
 				}
 				reject(new Error(message))
 			}
 		})
 	})
-
-	if(cache_enabled.indexOf(type) >= 0) {
-		// cache promise
-		cache_list_promise[type] = p
-	}
-	return p
 }
 
 /**
  * Recursively loop through API results using offset
- * Returns Promise
  */
-exports.getAll = function(type, payload) {
-	return getRecursively([], type, payload)
+exports.getListAll = function(client, endpoint, payload) {
+	return getRecursively(client, [], endpoint, payload)
 }
 
-function getRecursively(data, type, payload) {
+function getListRecursively(client, data, endpoint, payload) {
 
 	if (typeof payload == "undefined") {
 		payload = {}
 	}
 
-	return get(type, null, payload)
+	return getList(client, endpoint, payload)
 		.then(function(result) {
 
 			if (!result) {
-				return;
+				return
 			}
 
 			// More details on "spread": http://stackoverflow.com/a/30734348/3744180
@@ -215,68 +144,52 @@ function getRecursively(data, type, payload) {
 				payload.limit = limit
 			}
 
-			return getRecursively(data, type, payload)
+			return getRecursively(client, data, endpoint, payload)
 		})
 }
 
-// returns Promise
-exports.get = function(type, id, payload) {
+exports.getList = function(client, endpoint, payload) {
 
-	var params = getDefaultParams()
-
-	var url = getURL("get", type, id)
+	var url = getURL(client, "getList", endpoint)
 
 	if (!url) {
-		return Promise.reject(new Error('Unknown get ' + type))
+		return Promise.reject(new Error('Unknown getList: ' + endpoint))
 	}
 
-	if(typeof payload !== "undefined") {
-		for(var key in payload) {
-			// Skip non-allowed optional attributes
-			if (app.config.api.tm3.params_optional.indexOf(key) == -1) {
-				console.log("Attribute skipped: %s", key)
-				continue
-			}
-
-			params[key] = payload[key]
-		}
-	}
-
-	var options = { path: url, params: params }
-	var headers = getHeaders()
+	var params = getParams(payload)
+	var options = { method: 'GET', path: url, params: params }
+	var headers = getHeaders(client)
 	if(headers) {
 		options['headers'] = headers
 	}
 
-	return client(options).then(function(data) {
-		return new Promise(function(resolve, reject) {
-			if (data.status.code == 200) {
-				resolve(data.entity)
-			}
-			else {
-				app.logger.error({message: "API GET failed", path: url, response_code: data.status.code, response: data.entity})
-
-				var message
-				if (data.entity.message) {
-					message = data.entity.message
-				}
-				else {
-					message = "Onbekende fout in API"
-				}
-				reject(new Error(message))
-			}
-		})
-	})
+	return request(options)
 }
 
-exports.put = function(type, id, payload) {
+exports.get = function(client, endpoint, id, payload) {
 
-	var params = getDefaultParams()
-
-	var url = getURL("put", type, id)
+	var url = getURL(client, "get", endpoint, id)
 
 	if (!url) {
-		return Promise.reject(new Error('Unknown put ' + type))
+		return Promise.reject(new Error('Unknown get ' + endpoint))
+	}
+
+	var params = getParams(payload)
+	var options = { method: 'GET', path: url, params: params }
+	var headers = getHeaders(client)
+	if(headers) {
+		options['headers'] = headers
+	}
+
+	return request(options)
+}
+
+exports.put = function(client, endpoint, id, payload) {
+
+	var url = getURL(client, "put", endpoint, id)
+
+	if (!url) {
+		return Promise.reject(new Error('Unknown put ' + endpoint))
 	}
 
 	if(Object.keys(payload).length == 0) {
@@ -284,83 +197,29 @@ exports.put = function(type, id, payload) {
 	}
 
 	var entity = payload
-	var options = { method: 'PUT', path: url, params: params, entity: entity }
-	var headers = getHeaders()
+	var options = { method: 'PUT', path: url, params: {}, entity: entity }
+	var headers = getHeaders(client)
 	if(headers) {
 		options['headers'] = headers
 	}
 
-	return client(options).then(function(data) {
-		return new Promise(function(resolve, reject) {
-			if (data.status.code == 200) {
-				return resolve(data.entity)
-			}
-			else {
-				app.logger.error({message: "API PUT failed", payload: payload, entity: entity, path: url, response_code: data.status.code, response: data.entity})
-
-				var message
-				if (data.entity.message) {
-					message = data.entity.message
-				}
-				else {
-					message = "Onbekende fout in API"
-				}
-				return reject(new Error(message))
-			}
-		})
-	})
+	return request(options)
 }
 
-exports.post = function(type, id, payload) {
+exports.post = function(client, endpoint, id, payload) {
 
-	var params = getDefaultParams()
-
-	var url = getURL("post", type, id)
+	var url = getURL(client, "post", endpoint, id)
 
 	if (!url) {
-		return Promise.reject(new Error('Unknown post ' + type))
+		return Promise.reject(new Error('Unknown post ' + endpoint))
 	}
 
 	var entity = payload
-	var options = { method: 'POST', path: url, params: params, entity: entity }
-	var headers = getHeaders()
+	var options = { method: 'POST', path: url, params: {}, entity: entity }
+	var headers = getHeaders(client)
 	if(headers) {
 		options['headers'] = headers
 	}
 
-	return client(options)
-	.then(function(data) {
-		return new Promise(function(resolve, reject) {
-			if (data.status.code == 200) {
-
-				if(type == "contact") {
-					return resolve(data.entity.id)
-				}
-
-				return resolve(data.entity)
-			}
-			else {
-				app.logger.error({message: "API POST failed", payload: payload, path: url, response_code: data.status.code, response: data.entity})
-				console.log(util.inspect(data.entity, {depth: 4}))
-
-				var message
-				if (data.entity.message) {
-					message = data.entity.message
-				}
-				else {
-					message = "Onbekende fout in API"
-				}
-				return reject(new Error(message))
-			}
-		})
-	})
-}
-
-exports.setApi = function(_api) {
-	config.api = _api
-	config.api.base_url = _api.schema + "://" + _api.host + _api.path
-}
-
-exports.setAuthorization = function(_authorization) {
-	config.authorization = _authorization
+	return request(options)
 }
