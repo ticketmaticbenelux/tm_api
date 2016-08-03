@@ -15,6 +15,7 @@
 	    "pricelists": "settings/pricing/pricelists",
     	"customfields": "settings/system/customfields",
 	    "pricelists": "settings/pricing/pricelists",
+	    "orderfeedefinitions": "settings/pricing/orderfeedefinitions",
 	    "webskins": "settings/communicationanddesign/webskins",
 	    "ordermails": "settings/communicationanddesign/ordermails",
 	    "ticketlayouts": "settings/communicationanddesign/ticketlayouts",
