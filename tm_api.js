@@ -93,7 +93,7 @@ function request(options) {
 				resolve(data.entity)
 			}
 			else {
-				app.logger.error({message: "API request failed", options: options, response_code: data.status.code, response: data.entity})
+				console.log({message: "API request failed", options: options, response_code: data.status.code, response: data.entity})
 
 				var message
 				if (data.entity.message) {
