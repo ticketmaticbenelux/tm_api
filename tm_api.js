@@ -228,6 +228,7 @@ exports.query = function(client, sql) {
 	var payload = {
 		query: sql
 	}
+
 	return post(client, "queries", null, payload)
 	.then(res => res.results)
 }
