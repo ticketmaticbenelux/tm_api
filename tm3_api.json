@@ -12,6 +12,8 @@
 	    "tickets": "orders/%d/tickets",
 	    "payments": "orders/%d/payments",
 	    "confirm": "orders/%d",
+	    "import": "orders/import",	    
+	    "reserve": "orders/import/reserve",
 	    "pricelists": "settings/pricing/pricelists",
     	"customfields": "settings/system/customfields",
 	    "pricelists": "settings/pricing/pricelists",
@@ -19,7 +21,8 @@
 	    "webskins": "settings/communicationanddesign/webskins",
 	    "ordermails": "settings/communicationanddesign/ordermails",
 	    "ticketlayouts": "settings/communicationanddesign/ticketlayouts",
-	    "ticketlayouttemplates": "settings/communicationanddesign/ticketlayouttemplates"
+	    "ticketlayouttemplates": "settings/communicationanddesign/ticketlayouttemplates",
+	    "queries": "tools/queries"
     },
     "urls": {
 	  "list": {
