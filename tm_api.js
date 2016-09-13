@@ -223,3 +223,11 @@ exports.post = function(client, endpoint, id, payload) {
 
 	return request(options)
 }
+
+exports.query = function(client, sql) {
+	var payload = {
+		query: sql
+	}
+	return api.post(client, "queries", null, payload)
+	.then(res => res.results)
+}
