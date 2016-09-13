@@ -206,7 +206,7 @@ exports.put = function(client, endpoint, id, payload) {
 	return request(options)
 }
 
-exports.post = function(client, endpoint, id, payload) {
+var post = function(client, endpoint, id, payload) {
 
 	var url = getURL(client, "post", endpoint, id)
 
@@ -223,6 +223,7 @@ exports.post = function(client, endpoint, id, payload) {
 
 	return request(options)
 }
+exports.post = post
 
 exports.query = function(client, sql) {
 	var payload = {
