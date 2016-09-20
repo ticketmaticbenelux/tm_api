@@ -16,12 +16,13 @@
 	    "reserve": "orders/import/reserve",
 	    "pricelists": "settings/pricing/pricelists",
     	"customfields": "settings/system/customfields",
-	    "pricelists": "settings/pricing/pricelists",
 	    "orderfeedefinitions": "settings/pricing/orderfeedefinitions",
 	    "webskins": "settings/communicationanddesign/webskins",
 	    "ordermails": "settings/communicationanddesign/ordermails",
 	    "ticketlayouts": "settings/communicationanddesign/ticketlayouts",
 	    "ticketlayouttemplates": "settings/communicationanddesign/ticketlayouttemplates",
+	    "pricetypes": "settings/pricing/pricetypes",
+	    "locations": "settings/events/eventlocations",
 	    "queries": "tools/queries"
     },
     "urls": {
