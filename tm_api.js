@@ -35,7 +35,7 @@ function getHeaders(client) {
 }
 
 function getURL(client, type, endpoint, id) {
-	if(!(R.contains(type, ["getList", "get", "post", "put"]))) {
+	if(!(R.contains(type, ["getList", "get", "post", "put", "delete"]))) {
 		return false
 	}
 
@@ -45,7 +45,7 @@ function getURL(client, type, endpoint, id) {
 
 	var url_template = config.schema + "://" + config.host + config.path + config.endpoints[endpoint]
 
-	if(type == "get" || type == "put") {
+	if(type == "get" || type == "put" || type == "delete") {
 		url_template += "/%d"
 	}
 
@@ -225,9 +225,29 @@ var post = function(client, endpoint, id, payload) {
 }
 exports.post = post
 
+var del = function(client, endpoint, id, payload) {
+
+	var url = getURL(client, "delete", endpoint, id)
+
+	if (!url) {
+		return Promise.reject(new Error('Unknown delete ' + endpoint))
+	}
+
+	var entity = payload
+	var options = { method: 'DELETE', path: url, params: {}, entity: entity }
+	var headers = getHeaders(client)
+	if(headers) {
+		options['headers'] = headers
+	}
+
+	return request(options)
+}
+exports.del = del
+
 exports.query = function(client, sql) {
 	var payload = {
-		query: sql
+		query: sql,
+		limit: 3000
 	}
 
 	return post(client, "queries", null, payload)
