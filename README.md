@@ -20,12 +20,17 @@ The package recognizes endpoints, and generates the right URL based on the endpo
 
 Every request type has its own method and returns a Promise with the response data.
 
+All methods expect the client as the first argument to support the functional programming paradigm.
+
 ```
-api.get(client, endpoint, id, payload)
+api.getList(client, endpoint)
+api.get(client, endpoint, id)
 api.post(client, endpoint, id, payload)
 api.put(client, endpoint, id, payload)
-api.delete(client, endpoint, id, payload)
+api.delete(client, endpoint, id)
 ```
+
+Additionally you can use `api.getListAll` to recursively collect all results using the `offset` parameter.
 
 Examples:
 
@@ -74,4 +79,3 @@ var client = {
 api.getList(client, "contacts")
 .then(data => console.log(data))
 ```
-
