@@ -16,7 +16,16 @@ Example of dependency in `package.json`:
 
 ## Introduction
 
-The package recognizes endpoints, and generates the right URL based on the endpoint and request type. See `tm3_api.json` for the supported endpoints.
+The package recognizes endpoints, and generates the right URL based on the endpoint and request type. See `tm3_api.json` for a list of the supported endpoints.
+
+Every request type has its own method and returns a Promise with the response data.
+
+```
+api.get(client, endpoint, id, payload)
+api.post(client, endpoint, id, payload)
+api.put(client, endpoint, id, payload)
+api.delete(client, endpoint, id, payload)
+```
 
 Examples:
 
