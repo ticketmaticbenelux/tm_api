@@ -24,7 +24,7 @@ All methods expect the client as the first argument to support the functional pr
 
 Additionally you can use `api.getListAll` to recursively collect all results using the `offset` parameter.
 
-Examples:
+### Examples:
 
 Get list of contacts:
 
