@@ -22,7 +22,7 @@ Every request type has its own method and returns a Promise with the response da
 
 All methods expect the client as the first argument to support the functional programming paradigm.
 
-Additionally you can use `api.getListAll` to recursively collect all results using the `offset` parameter.
+Additionally you can use `api.getListAll` to recursively collect all results. Internally the `offset` parameter is being used.
 
 ### Examples:
 
