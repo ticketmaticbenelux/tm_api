@@ -8,7 +8,7 @@ You need a Personal Access Token to be able to use this package.
 
 Example of dependency in `package.json`:
 
-```
+```javascript
   "dependencies": {
     "tm_api": "git+https://abcxyz:x-oauth-basic@github.com/rutgernation/tm_api.git"
   }
@@ -28,39 +28,39 @@ With the `query` method you can execute a query on the public data model of Tick
 
 Get list of contacts:
 
-```
+```javascript
 api.getList(client, "contacts")
 ```
 
 Get contact:
 
-```
+```javascript
 api.get(client, "contacts", 10000)
 ```
 
 Create contact:
 
-```
+```javascript
 let payload = {...}
 api.post(client, "contacts", null, payload)
 ```
 
 Update contact:
 
-```
+```javascript
 let payload = {...}
 api.put(client, "contacts", 10001, payload)
 ```
 
 Delete contact:
 
-```
+```javascript
 api.delete(client, "contacts", 10002)
 ```
 
 Execute query:
 
-```
+```javascript
 let query = "select * from tm.contact limit 10"
 api.query(client, query)
 ```
@@ -69,7 +69,7 @@ api.query(client, query)
 
 Example of usage:
 
-```
+```javascript
 var env = require('node-env-file')
 env(__dirname + './.env')
 
