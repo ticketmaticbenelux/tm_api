@@ -24,6 +24,7 @@
 	    "ticketlayouttemplates": "settings/communicationanddesign/ticketlayouttemplates",
 	    "pricetypes": "settings/pricing/pricetypes",
 	    "locations": "settings/events/eventlocations",
+	    "locktypes": "settings/ticketsales/locktypes",
 	    "queries": "tools/queries"
     },
     "urls": {
