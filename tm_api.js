@@ -255,7 +255,7 @@ exports.queryAll = function(client, sql) {
 	return queryRecursively(client, [], payload)
 }
 
-function queryRecursively(client, data, payload) {
+const queryRecursively = (client, data, payload) => {
 
 	if (typeof payload == "undefined") {
 		payload = {}
@@ -288,10 +288,7 @@ function queryRecursively(client, data, payload) {
 		})
 }
 
-const _query = (client, payload) => {
-	console.log(payload)
-	return post(client, "queries", null, payload)
-}
+const _query = (client, payload) => post(client, "queries", null, payload)
 
 exports.query = function(client, sql) {
 	var payload = {
