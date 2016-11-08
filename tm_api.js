@@ -15,7 +15,7 @@ var client = rest.wrap(mime, { mime: 'application/json' })
 var config = require('./tm3_api.json')
 
 // API offset limit
-var limit = 100
+var limit = 100, query_limit = 1000
 
 // TM3 Authorization header
 function getHeaders(client) {
@@ -244,12 +244,59 @@ var del = function(client, endpoint, id, payload) {
 }
 exports.del = del
 
-exports.query = function(client, sql) {
+/**
+ * Recursively loop through API results using offset
+ */
+exports.queryAll = function(client, sql) {
 	var payload = {
 		query: sql,
-		limit: 3000
+		limit: query_limit
+	}	
+	return queryRecursively(client, [], payload)
+}
+
+function queryRecursively(client, data, payload) {
+
+	if (typeof payload == "undefined") {
+		payload = {}
 	}
 
+	return _query(client, payload)
+		.then(function(result) {
+
+			if (!result.results) {
+				return
+			}
+
+			// More details on "spread": http://stackoverflow.com/a/30734348/3744180
+			data.push(...result.results)
+
+			if (!(result.results) || result.results.length < query_limit) {
+				return Promise.resolve(data)
+			}
+
+			if (!("offset" in payload)) {
+				payload.offset = query_limit
+				payload.limit = query_limit
+			}
+			else {
+				payload.offset += query_limit
+				payload.limit = query_limit
+			}
+
+			return queryRecursively(client, data, payload)
+		})
+}
+
+const _query = (client, payload) => {
+	console.log(payload)
 	return post(client, "queries", null, payload)
+}
+
+exports.query = function(client, sql) {
+	var payload = {
+		query: sql
+	}
+	return _query(client, payload)
 	.then(res => res.results)
 }
