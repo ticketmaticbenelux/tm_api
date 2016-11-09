@@ -10,7 +10,7 @@ Example of dependency in `package.json`:
 
 ```javascript
   "dependencies": {
-    "tm_api": "git+https://abcxyz:x-oauth-basic@github.com/rutgernation/tm_api.git"
+    "tm_api": "git+https://github.com/ticketmaticbenelux/tm_api.git"
   }
 ```
 
