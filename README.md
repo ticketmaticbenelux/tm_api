@@ -4,14 +4,8 @@
 
 ## Installation
 
-You need a Personal Access Token to be able to use this package.
-
-Example of dependency in `package.json`:
-
-```javascript
-  "dependencies": {
-    "tm_api": "git+https://github.com/ticketmaticbenelux/tm_api.git"
-  }
+```
+npm install https://github.com/ticketmaticbenelux/tm_api
 ```
 
 ## Introduction
