@@ -65,6 +65,13 @@ let query = "select * from tm.contact limit 10"
 api.query(client, query)
 ```
 
+Execute query with large number of results and recursively get all results using offset:
+
+```javascript
+let query = "select * from tm.contact"
+api.queryAll(client, query)
+```
+
 ## Usage
 
 Example of usage:
