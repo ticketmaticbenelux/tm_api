@@ -25,6 +25,8 @@
 	    "pricetypes": "settings/pricing/pricetypes",
 	    "locations": "settings/events/eventlocations",
 	    "locktypes": "settings/ticketsales/locktypes",
+	    "vouchers": "settings/vouchers",
+	    "vouchercodes": "settings/vouchers/%d/codes",
 	    "queries": "tools/queries"
     },
     "urls": {
