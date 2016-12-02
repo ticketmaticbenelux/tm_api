@@ -27,7 +27,8 @@
 	    "locktypes": "settings/ticketsales/locktypes",
 	    "vouchers": "settings/vouchers",
 	    "vouchercodes": "settings/vouchers/%d/codes",
-	    "queries": "tools/queries"
+	    "queries": "tools/queries",
+	    "export": "tools/queries/export"
     },
     "urls": {
 	  "list": {
