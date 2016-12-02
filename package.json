@@ -1,6 +1,6 @@
 {
   "name": "tm_api",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "TM3 API wrapper",
   "main": "tm_api.js",
   "scripts": {
@@ -18,7 +18,9 @@
     "moment": "^2.14.1",
     "node-env-file": "^0.1.8",
     "ramda": "^0.21.0",
+    "request": "^2.79.0",
     "rest": "^2.0.0",
+    "split": "^1.0.0",
     "util": "^0.10.3"
   }
 }

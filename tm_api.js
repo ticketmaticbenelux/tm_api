@@ -3,12 +3,14 @@
 require('http').globalAgent.maxSockets = 5
 require('https').globalAgent.maxSockets = 5
 
-var rest = require('rest'),
+var request = require('request'),
+	rest = require('rest'),
 	mime = require('rest/interceptor/mime'),
 	moment = require('moment'),
 	crypto = require('crypto'),
 	util = require('util'),
-	R = require('ramda')
+	R = require('ramda'),
+	split = require('split')
 
 var client = rest.wrap(mime, { mime: 'application/json' })
 
@@ -296,4 +298,29 @@ exports.query = function(client, sql) {
 	}
 	return _query(client, payload)
 	.then(res => res.results)
+}
+
+exports.export = function(client, sql) {
+	return new Promise((resolve, reject) => {
+
+		var url = getURL(client, "post", "export")
+
+		var options = {
+			url: url,
+			json: { query: sql }
+		}
+
+		var headers = getHeaders(client)
+		if(headers) {
+			options['headers'] = headers
+		}
+
+		var arr = []
+		
+		request.post(options)
+		.pipe(split(JSON.parse, null, { trailing: false }))
+		.on('data', obj => arr.push(obj))
+		.on('end', () => resolve(arr))
+		.on('error', err => reject(err))
+	})
 }
