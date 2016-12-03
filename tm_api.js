@@ -88,7 +88,7 @@ function getParams(payload) {
 	return params
 }
 
-function request(options) {
+function _request(options) {
 	return client(options).then(function(data) {
 		return new Promise(function(resolve, reject) {
 			if (data.status.code == 200) {
@@ -165,7 +165,7 @@ exports.getList = function(client, endpoint, payload) {
 		options['headers'] = headers
 	}
 
-	return request(options)
+	return _request(options)
 }
 
 exports.get = function(client, endpoint, id, payload) {
@@ -183,7 +183,7 @@ exports.get = function(client, endpoint, id, payload) {
 		options['headers'] = headers
 	}
 
-	return request(options)
+	return _request(options)
 }
 
 exports.put = function(client, endpoint, id, payload) {
@@ -205,7 +205,7 @@ exports.put = function(client, endpoint, id, payload) {
 		options['headers'] = headers
 	}
 
-	return request(options)
+	return _request(options)
 }
 
 var post = function(client, endpoint, id, payload) {
@@ -223,7 +223,7 @@ var post = function(client, endpoint, id, payload) {
 		options['headers'] = headers
 	}
 
-	return request(options)
+	return _request(options)
 }
 exports.post = post
 
@@ -242,7 +242,7 @@ var del = function(client, endpoint, id, payload) {
 		options['headers'] = headers
 	}
 
-	return request(options)
+	return _request(options)
 }
 exports.del = del
 
