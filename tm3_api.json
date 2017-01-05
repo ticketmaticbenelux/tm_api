@@ -30,6 +30,7 @@
 	    "queries": "tools/queries",
 	    "export": "tools/queries/export"
     },
+    "no-extra-param": [],
     "urls": {
 	  "list": {
 	    "RelationType":           "tools/queries",
