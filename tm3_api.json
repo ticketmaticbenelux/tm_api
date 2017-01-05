@@ -6,6 +6,7 @@
     "endpoints": {
     	"contacts": "contacts",
     	"events": "events",
+    	"eventlocktickets": "events/%d/tickets/lock",
     	"orders": "orders",
     	"logs": "orders/%d/logs",
 	    "pdf": "orders/%d/pdf",
