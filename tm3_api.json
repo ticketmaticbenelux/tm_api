@@ -31,7 +31,7 @@
 	    "queries": "tools/queries",
 	    "export": "tools/queries/export"
     },
-    "no-extra-param": ["eventlocktickets"],
+    "no_extra_param": ["eventlocktickets"],
     "urls": {
 	  "list": {
 	    "RelationType":           "tools/queries",
