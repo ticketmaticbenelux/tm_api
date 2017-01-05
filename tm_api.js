@@ -47,7 +47,7 @@ function getURL(client, type, endpoint, id) {
 
 	var url_template = config.schema + "://" + config.host + config.path + config.endpoints[endpoint]
 
-	if(type == "get" || type == "put" || type == "delete") {
+	if((type == "get" || type == "put" || type == "delete") && !R.contains(endpoint,config.no_extra_param)) {
 		url_template += "/%d"
 	}
 
