@@ -7,6 +7,7 @@
     	"contacts": "contacts",
     	"events": "events",
     	"eventlocktickets": "events/%d/tickets/lock",
+    	"eventunlocktickets": "events/%d/tickets/unlock",
     	"ticketsbatch": "events/%d/tickets/batch",
     	"orders": "orders",
     	"logs": "orders/%d/logs",
@@ -32,7 +33,7 @@
 	    "queries": "tools/queries",
 	    "export": "tools/queries/export"
     },
-    "no_extra_param": ["eventlocktickets", "ticketsbatch"],
+    "no_extra_param": ["eventlocktickets", "eventunlocktickets", "ticketsbatch"],
     "urls": {
 	  "list": {
 	    "RelationType":           "tools/queries",
