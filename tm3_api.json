@@ -5,6 +5,7 @@
     "path": "/api/1/%s/",
     "endpoints": {
     	"contacts": "contacts",
+    	"contactsimport": "contacts/import",
     	"events": "events",
     	"eventlocktickets": "events/%d/tickets/lock",
     	"orders": "orders",
