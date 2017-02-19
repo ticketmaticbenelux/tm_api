@@ -106,7 +106,7 @@ function _request(options) {
 				else {
 					message = "Onbekende fout in API"
 				}
-				reject(new Error(message))
+				reject(message)
 			}
 		})
 	})
