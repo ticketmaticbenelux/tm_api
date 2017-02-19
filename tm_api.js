@@ -95,7 +95,9 @@ function _request(options) {
 				resolve(data.entity)
 			}
 			else {
-				console.log({message: "API request failed", options: options, response_code: data.status.code, response: data.entity})
+				if(config.debug) {
+					console.log({message: "API request failed", options: options, response_code: data.status.code, response: data.entity})
+				}
 
 				var message
 				if (data.entity.message) {
@@ -323,4 +325,8 @@ exports.export = function(client, sql) {
 		.on('end', () => resolve(arr))
 		.on('error', err => reject(err))
 	})
+}
+
+exports.setDebug = function(input) {
+	config.debug = (input) ? true : false
 }

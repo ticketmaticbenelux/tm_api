@@ -3,6 +3,7 @@
     "host": "apps.ticketmatic.com",
     "port": "",
     "path": "/api/1/%s/",
+    "debug": false,
     "endpoints": {
     	"contacts": "contacts",
     	"contactsimport": "contacts/import",
