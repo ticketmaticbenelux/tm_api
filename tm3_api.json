@@ -24,6 +24,7 @@
 	    "products": "settings/products",
 	    "pricelists": "settings/pricing/pricelists",
     	"customfields": "settings/system/customfields",
+    	"customfieldvalues": "settings/system/customfieldvalues",
 	    "orderfeedefinitions": "settings/pricing/orderfeedefinitions",
 	    "webskins": "settings/communicationanddesign/webskins",
 	    "ordermails": "settings/communicationanddesign/ordermails",
