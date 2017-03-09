@@ -196,6 +196,10 @@ exports.put = function(client, endpoint, id, payload) {
 		return Promise.reject(new Error('Unknown put ' + endpoint))
 	}
 
+	if(!payload) {
+		return Promise.reject("[TM API] No payload for PUT request.")
+	}	
+
 	if(Object.keys(payload).length == 0) {
 		return Promise.resolve()
 	}
