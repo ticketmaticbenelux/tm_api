@@ -1,6 +1,6 @@
 # tm_api
 
-`tm_api` is a Node.js wrapper for the Ticketmatic 3 API.
+`tm_api` is a Node.js wrapper for the [Ticketmatic 3 API](https://www.ticketmatic.com/docs/api/).
 
 ## Installation
 
