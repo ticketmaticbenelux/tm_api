@@ -11,6 +11,7 @@
     	"events": "events",
     	"eventlocktickets": "events/%d/tickets/lock",
     	"eventunlocktickets": "events/%d/tickets/unlock",
+    	"eventseatranks": "events/%d/tickets/seatrank",
     	"ticketsbatch": "events/%d/tickets/batch",
     	"orders": "orders",
     	"logs": "orders/%d/logs",
@@ -38,7 +39,7 @@
 	    "queries": "tools/queries",
 	    "export": "tools/queries/export"
     },
-    "no_extra_param": ["eventlocktickets", "eventunlocktickets", "ticketsbatch", "tickets"],
+    "no_extra_param": ["eventlocktickets", "eventunlocktickets", "ticketsbatch", "tickets", "eventseatranks"],
     "urls": {
 	  "list": {
 	    "RelationType":           "tools/queries",
