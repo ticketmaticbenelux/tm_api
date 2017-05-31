@@ -8,6 +8,7 @@
     	"contacts": "contacts",
     	"contactsimport": "contacts/import",
     	"contactsreserve": "contacts/import/reserve",
+    	"relationtypes": "settings/system/relationtypes",
     	"events": "events",
     	"eventlocktickets": "events/%d/tickets/lock",
     	"eventunlocktickets": "events/%d/tickets/unlock",
