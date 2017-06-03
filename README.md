@@ -66,6 +66,15 @@ let query = "select * from tm.contact"
 api.export(client, query)
 ```
 
+## Debug mode
+
+To output API errors:
+
+```
+const api = require("tm_api")
+api.setDebug(true)
+```
+
 ## Usage
 
 Example of usage:
