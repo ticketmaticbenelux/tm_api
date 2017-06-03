@@ -49,7 +49,7 @@ api.put(client, "contacts", 10001, payload)
 Delete contact:
 
 ```javascript
-api.delete(client, "contacts", 10002)
+api.del(client, "contacts", 10002)
 ```
 
 Execute query:
