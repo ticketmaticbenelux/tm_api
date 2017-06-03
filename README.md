@@ -71,12 +71,12 @@ api.export(client, query)
 Example of usage:
 
 ```javascript
-var env = require('node-env-file')
+const env = require('node-env-file')
 env(__dirname + './.env')
 
-var api = require("tm_api")
+const api = require("tm_api")
 
-var client = {
+const client = {
 	shortname: process.env.SHORTNAME,
 	key: process.env.API_KEY,
 	secret: process.env.API_SECRET
