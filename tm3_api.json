@@ -21,7 +21,8 @@
 	    "payments": "orders/%d/payments",
 	    "confirm": "orders/%d",
 	    "emailpaymentinstruction": "orders/%d/tickets/emailpaymentinstruction",
-	    "orderdocuments": "/orders/%d/documents/%d/nl",
+	    "emaildelivery": "orders/%d/tickets/emaildelivery",
+	    "orderdocuments": "orders/%d/documents/%d/nl",
 	    "import": "orders/import",	    
 	    "reserve": "orders/import/reserve",
 	    "products": "settings/products",
@@ -41,7 +42,7 @@
 	    "queries": "tools/queries",
 	    "export": "tools/queries/export"
     },
-    "no_extra_param": ["eventlocktickets", "eventunlocktickets", "ticketsbatch", "tickets", "eventseatranks", "orderdocuments"],
+    "no_extra_param": ["eventlocktickets", "eventunlocktickets", "ticketsbatch", "tickets", "eventseatranks", "orderdocuments", "emailpaymentinstruction", "emaildelivery"],
     "urls": {
 	  "list": {
 	    "RelationType":           "tools/queries",
