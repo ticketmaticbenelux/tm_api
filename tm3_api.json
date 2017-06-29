@@ -29,6 +29,7 @@
 	    "pricelists": "settings/pricing/pricelists",
     	"customfields": "settings/system/customfields",
     	"customfieldvalues": "settings/system/customfieldvalues",
+    	"fielddefinitions": "settings/system/fielddefinitions",
     	"filterdefinitions": "settings/system/filterdefinitions",
     	"views": "settings/system/views",
     	"reports": "settings/system/reports",
