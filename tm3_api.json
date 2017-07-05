@@ -48,7 +48,7 @@
 	    "export": "tools/queries/export",
 	    "paymentmethods": "settings/ticketsales/paymentmethods",
 	    "paymentscenarios": "settings/ticketsales/paymentscenarios",
-	    "deliveryscenarios": "settings/ticketsales/deliveryscenarios",	    
+	    "deliveryscenarios": "settings/ticketsales/deliveryscenarios"  
     },
     "no_extra_param": ["eventlocktickets", "eventunlocktickets", "ticketsbatch", "tickets", "eventseatranks", "orderdocuments", "emailpaymentinstruction", "emaildelivery"],
     "urls": {
