@@ -35,6 +35,7 @@
     	"reports": "settings/system/reports",
 	    "orderfeedefinitions": "settings/pricing/orderfeedefinitions",
 	    "webskins": "settings/communicationanddesign/webskins",
+	    "ordermailtemplates": "settings/communicationanddesign/ordermails",
 	    "ordermails": "settings/communicationanddesign/ordermails",
 	    "ticketlayouts": "settings/communicationanddesign/ticketlayouts",
 	    "ticketlayouttemplates": "settings/communicationanddesign/ticketlayouttemplates",
