@@ -16,7 +16,7 @@ var client = rest.wrap(mime, { mime: 'application/json' })
 
 var config = require('./tm3_api.json')
 
-var counter = { get: 0, put: 0, post: 0, delete: 0, query: 0, export: 0 }
+var counter
 
 // API offset limit
 var limit = 100, query_limit = 1000
@@ -343,3 +343,13 @@ exports.export = function(client, sql) {
 		.on('error', err => reject(err))
 	})
 }
+
+// Statistics related functions
+exports.getStats = () => R.clone(counter)
+
+var resetStats = function() {
+	counter = { get: 0, put: 0, post: 0, delete: 0, query: 0, export: 0 }
+}
+resetStats() // Initialize the statistics
+
+exports.resetStats = resetStats
