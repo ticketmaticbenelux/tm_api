@@ -16,6 +16,8 @@ var client = rest.wrap(mime, { mime: 'application/json' })
 
 var config = require('./tm3_api.json')
 
+var counter = { get: 0, put: 0, post: 0, delete: 0, query: 0, export: 0 }
+
 // API offset limit
 var limit = 100, query_limit = 1000
 
@@ -73,9 +75,9 @@ function getParams(payload) {
 	}
 
 	var params = {}
-	
+
 	for(var key in payload) {
-		
+
 		// Skip non-allowed optional attributes
 		if (R.contains(key, config.params_optional)) {
 			console.log("Attribute skipped: %s", key)
@@ -114,6 +116,7 @@ function _request(options) {
  * Recursively loop through API results using offset
  */
 exports.getListAll = function(client, endpoint, payload) {
+	counter.get += 1;
 	return getRecursively(client, [], endpoint, payload)
 }
 
@@ -123,7 +126,7 @@ function getListRecursively(client, data, endpoint, payload) {
 		payload = {}
 	}
 
-	return getList(client, endpoint, payload)
+	return _getList(client, endpoint, payload)
 		.then(function(result) {
 
 			if (!result) {
@@ -150,7 +153,7 @@ function getListRecursively(client, data, endpoint, payload) {
 		})
 }
 
-exports.getList = function(client, endpoint, payload) {
+function _getList(client, endpoint, payload) {
 
 	var url = getURL(client, "getList", endpoint)
 
@@ -168,6 +171,11 @@ exports.getList = function(client, endpoint, payload) {
 	return _request(options)
 }
 
+exports.getList = function(client, endpoint, payload) {
+	counter.get += 1;
+	return _getList(client, endpoint, payload)
+}
+
 exports.get = function(client, endpoint, id, payload) {
 
 	var url = getURL(client, "get", endpoint, id)
@@ -183,6 +191,7 @@ exports.get = function(client, endpoint, id, payload) {
 		options['headers'] = headers
 	}
 
+	counter.get += 1;
 	return _request(options)
 }
 
@@ -205,10 +214,11 @@ exports.put = function(client, endpoint, id, payload) {
 		options['headers'] = headers
 	}
 
+	counter.put += 1;
 	return _request(options)
 }
 
-var post = function(client, endpoint, id, payload) {
+var _post = function(client, endpoint, id, payload) {
 
 	var url = getURL(client, "post", endpoint, id)
 
@@ -225,9 +235,13 @@ var post = function(client, endpoint, id, payload) {
 
 	return _request(options)
 }
-exports.post = post
 
-var del = function(client, endpoint, id, payload) {
+exports.post = function(client, endpoint, id, payload) {
+	counter.post += 1;
+	return _post(client, endpoint, id, payload)
+}
+
+exports.del = function(client, endpoint, id, payload) {
 
 	var url = getURL(client, "delete", endpoint, id)
 
@@ -242,9 +256,9 @@ var del = function(client, endpoint, id, payload) {
 		options['headers'] = headers
 	}
 
+	counter.delete += 1;
 	return _request(options)
 }
-exports.del = del
 
 /**
  * Recursively loop through API results using offset
@@ -253,7 +267,9 @@ exports.queryAll = function(client, sql) {
 	var payload = {
 		query: sql,
 		limit: query_limit
-	}	
+	}
+
+	counter.query += 1;
 	return queryRecursively(client, [], payload)
 }
 
@@ -290,12 +306,14 @@ const queryRecursively = (client, data, payload) => {
 		})
 }
 
-const _query = (client, payload) => post(client, "queries", null, payload)
+const _query = (client, payload) => _post(client, "queries", null, payload)
 
 exports.query = function(client, sql) {
 	var payload = {
 		query: sql
 	}
+
+	counter.query += 1;
 	return _query(client, payload)
 	.then(res => res.results)
 }
@@ -316,7 +334,8 @@ exports.export = function(client, sql) {
 		}
 
 		var arr = []
-		
+
+		counter.export += 1;
 		request.post(options)
 		.pipe(split(JSON.parse, null, { trailing: false }))
 		.on('data', obj => arr.push(obj))
