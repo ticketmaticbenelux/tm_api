@@ -5,7 +5,15 @@
 ## Installation
 
 ```
+npm install node-env-file
 npm install https://github.com/ticketmaticbenelux/tm_api
+```
+
+If you have a Node.js project with `package.json`, use `--save` to add the dependency to `package.json`:
+
+```
+npm install --save node-env-file
+npm install --save https://github.com/ticketmaticbenelux/tm_api
 ```
 
 ## Introduction
@@ -67,6 +75,14 @@ api.export(client, query)
 ```
 
 ## Usage
+
+Create `.env` file with the right environment variables:
+
+```
+SHORTNAME=xxx
+API_KEY=XXX
+SECRET_KEY=xxx
+```
 
 Example of usage:
 
