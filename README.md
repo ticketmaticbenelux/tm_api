@@ -9,7 +9,7 @@ npm install node-env-file
 npm install https://github.com/ticketmaticbenelux/tm_api
 ```
 
-If you have a Node.js project with `package.json`, use `--save` to add the dependency to `package.json`:
+If you have a Node.js project with `package.json`, use `--save` to add the dependencies to `package.json`:
 
 ```
 npm install --save node-env-file
