@@ -45,6 +45,7 @@
 	    "locktypes": "settings/ticketsales/locktypes",
 	    "vouchers": "settings/vouchers",
 	    "vouchercodes": "settings/vouchers/%d/codes",
+	    "deactivate": "settings/vouchers/%d/deactivatecodes",
 	    "queries": "tools/queries",
 	    "export": "tools/queries/export",
 	    "paymentmethods": "settings/ticketsales/paymentmethods",
