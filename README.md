@@ -81,7 +81,7 @@ Create `.env` file with the right environment variables:
 ```
 SHORTNAME=xxx
 API_KEY=XXX
-SECRET_KEY=xxx
+API_SECRET=xxx
 ```
 
 Example of usage:
