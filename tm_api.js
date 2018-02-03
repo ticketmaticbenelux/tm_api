@@ -308,8 +308,9 @@ const queryRecursively = (client, data, payload) => {
 
 const _query = (client, payload) => _post(client, "queries", null, payload)
 
-exports.query = function(client, sql) {
+exports.query = function(client, sql, limit) {
 	var payload = {
+		limit: limit,
 		query: sql
 	}
 

@@ -63,8 +63,15 @@ api.delete(client, "contacts", 10002)
 Execute query:
 
 ```javascript
-let query = "select * from tm.contact limit 10"
+let query = "select * from tm.contact"
 api.query(client, query)
+```
+
+Execute query with a limit:
+
+```javascript
+let query = "select * from tm.contact"
+api.query(client, query, 250)
 ```
 
 Execute query with large number of results:
