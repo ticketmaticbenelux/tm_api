@@ -1,6 +1,6 @@
 # tm_api
 
-`tm_api` is a Node.js wrapper for the Ticketmatic 3 API.
+`tm_api` is a Node.js wrapper for the [Ticketmatic 3 API](https://www.ticketmatic.com/docs/api/).
 
 ## Installation
 
@@ -57,7 +57,7 @@ api.put(client, "contacts", 10001, payload)
 Delete contact:
 
 ```javascript
-api.delete(client, "contacts", 10002)
+api.del(client, "contacts", 10002)
 ```
 
 Execute query:
@@ -81,6 +81,15 @@ let query = "select * from tm.contact"
 api.export(client, query)
 ```
 
+## Debug mode
+
+To output API errors:
+
+```
+const api = require("tm_api")
+api.setDebug(true)
+```
+
 ## Usage
 
 Create `.env` file with the right environment variables:
@@ -94,12 +103,12 @@ API_SECRET=xxx
 Example of usage:
 
 ```javascript
-var env = require('node-env-file')
+const env = require('node-env-file')
 env(__dirname + './.env')
 
-var api = require("tm_api")
+const api = require("tm_api")
 
-var client = {
+const client = {
 	shortname: process.env.SHORTNAME,
 	key: process.env.API_KEY,
 	secret: process.env.API_SECRET

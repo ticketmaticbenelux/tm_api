@@ -49,7 +49,7 @@ function getURL(client, type, endpoint, id) {
 
 	var url_template = config.schema + "://" + config.host + config.path + config.endpoints[endpoint]
 
-	if(type == "get" || type == "put" || type == "delete") {
+	if((type == "get" || type == "put" || type == "delete") && !R.contains(endpoint,config.no_extra_param)) {
 		url_template += "/%d"
 	}
 
@@ -97,7 +97,9 @@ function _request(options) {
 				resolve(data.entity)
 			}
 			else {
-				console.log({message: "API request failed", options: options, response_code: data.status.code, response: data.entity})
+				if(config.debug) {
+					console.log({message: "API request failed", options: options, response_code: data.status.code, response: data.entity})
+				}
 
 				var message
 				if (data.entity.message) {
@@ -106,7 +108,7 @@ function _request(options) {
 				else {
 					message = "Onbekende fout in API"
 				}
-				reject(new Error(message))
+				reject(message)
 			}
 		})
 	})
@@ -202,6 +204,10 @@ exports.put = function(client, endpoint, id, payload) {
 	if (!url) {
 		return Promise.reject(new Error('Unknown put ' + endpoint))
 	}
+
+	if(!payload) {
+		return Promise.reject("[TM API] No payload for PUT request.")
+	}	
 
 	if(Object.keys(payload).length == 0) {
 		return Promise.resolve()
@@ -343,6 +349,10 @@ exports.export = function(client, sql) {
 		.on('end', () => resolve(arr))
 		.on('error', err => reject(err))
 	})
+}
+
+exports.setDebug = function(input) {
+	config.debug = (input) ? true : false
 }
 
 // Statistics related functions
