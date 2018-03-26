@@ -3,14 +3,14 @@
 require('http').globalAgent.maxSockets = 5
 require('https').globalAgent.maxSockets = 5
 
-var request = require('request'),
-	rest = require('rest'),
-	mime = require('rest/interceptor/mime'),
-	moment = require('moment'),
-	crypto = require('crypto'),
-	util = require('util'),
-	R = require('ramda'),
-	split = require('split')
+var request = require('request')
+var rest = require('rest')
+var mime = require('rest/interceptor/mime')
+var moment = require('moment')
+var crypto = require('crypto')
+var util = require('util')
+var R = require('ramda')
+var split = require('split')
 
 var client = rest.wrap(mime, { mime: 'application/json' })
 
@@ -19,7 +19,8 @@ var config = require('./tm3_api.json')
 var counter
 
 // API offset limit
-var limit = 100, query_limit = 1000
+var limit = 100
+var query_limit = 1000
 
 // TM3 Authorization header
 function getHeaders(client) {
@@ -39,7 +40,7 @@ function getHeaders(client) {
 }
 
 function getURL(client, type, endpoint, id) {
-	if(!(R.contains(type, ["getList", "get", "post", "put", "delete"]))) {
+	if(!(R.contains(type, ['getList', 'get', 'post', 'put', 'delete']))) {
 		return false
 	}
 
@@ -47,15 +48,15 @@ function getURL(client, type, endpoint, id) {
 		return false
 	}
 
-	var url_template = config.schema + "://" + config.host + config.path + config.endpoints[endpoint]
+	var url_template = config.schema + '://' + config.host + config.path + config.endpoints[endpoint]
 
-	if((type == "get" || type == "put" || type == "delete") && !R.contains(endpoint,config.no_extra_param)) {
-		url_template += "/%d"
+	if((type == 'get' || type == 'put' || type == 'delete') && !R.contains(endpoint,config.no_extra_param)) {
+		url_template += '/%d'
 	}
 
 	var url
 	if(id) {
-		if(typeof id == "object") {
+		if(typeof id == 'object') {
 			url = util.format(url_template, client.shortname, id[0], id[1])
 		}
 		else {
@@ -70,7 +71,7 @@ function getURL(client, type, endpoint, id) {
 }
 
 function getParams(payload) {
-	if(typeof payload === "undefined") {
+	if(typeof payload === 'undefined') {
 		return {}
 	}
 
@@ -98,7 +99,7 @@ function _request(options) {
 			}
 			else {
 				if(config.debug) {
-					console.log({message: "API request failed", options: options, response_code: data.status.code, response: data.entity})
+					console.log({message: 'API request failed', options: options, response_code: data.status.code, response: data.entity})
 				}
 
 				var message
@@ -106,7 +107,7 @@ function _request(options) {
 					message = data.entity.message
 				}
 				else {
-					message = "Onbekende fout in API"
+					message = 'Onbekende fout in API'
 				}
 				reject(message)
 			}
@@ -124,7 +125,7 @@ exports.getListAll = function(client, endpoint, payload) {
 
 function getListRecursively(client, data, endpoint, payload) {
 
-	if (typeof payload == "undefined") {
+	if (typeof payload == 'undefined') {
 		payload = {}
 	}
 
@@ -135,14 +136,14 @@ function getListRecursively(client, data, endpoint, payload) {
 				return
 			}
 
-			// More details on "spread": http://stackoverflow.com/a/30734348/3744180
+			// More details on 'spread': http://stackoverflow.com/a/30734348/3744180
 			data.push(...result.data)
 
 			if (!(result.data) || result.data.length < limit) {
 				return Promise.resolve(data)
 			}
 
-			if (!("offset" in payload)) {
+			if (!('offset' in payload)) {
 				payload.offset = limit
 				payload.limit = limit
 			}
@@ -157,7 +158,7 @@ function getListRecursively(client, data, endpoint, payload) {
 
 function _getList(client, endpoint, payload) {
 
-	var url = getURL(client, "getList", endpoint)
+	var url = getURL(client, 'getList', endpoint)
 
 	if (!url) {
 		return Promise.reject(new Error('Unknown getList: ' + endpoint))
@@ -180,7 +181,7 @@ exports.getList = function(client, endpoint, payload) {
 
 exports.get = function(client, endpoint, id, payload) {
 
-	var url = getURL(client, "get", endpoint, id)
+	var url = getURL(client, 'get', endpoint, id)
 
 	if (!url) {
 		return Promise.reject(new Error('Unknown get ' + endpoint))
@@ -199,14 +200,14 @@ exports.get = function(client, endpoint, id, payload) {
 
 exports.put = function(client, endpoint, id, payload) {
 
-	var url = getURL(client, "put", endpoint, id)
+	var url = getURL(client, 'put', endpoint, id)
 
 	if (!url) {
 		return Promise.reject(new Error('Unknown put ' + endpoint))
 	}
 
 	if(!payload) {
-		return Promise.reject("[TM API] No payload for PUT request.")
+		return Promise.reject('[TM API] No payload for PUT request.')
 	}	
 
 	if(Object.keys(payload).length == 0) {
@@ -226,7 +227,7 @@ exports.put = function(client, endpoint, id, payload) {
 
 var _post = function(client, endpoint, id, payload) {
 
-	var url = getURL(client, "post", endpoint, id)
+	var url = getURL(client, 'post', endpoint, id)
 
 	if (!url) {
 		return Promise.reject(new Error('Unknown post ' + endpoint))
@@ -249,7 +250,7 @@ exports.post = function(client, endpoint, id, payload) {
 
 exports.del = function(client, endpoint, id, payload) {
 
-	var url = getURL(client, "delete", endpoint, id)
+	var url = getURL(client, 'delete', endpoint, id)
 
 	if (!url) {
 		return Promise.reject(new Error('Unknown delete ' + endpoint))
@@ -281,7 +282,7 @@ exports.queryAll = function(client, sql) {
 
 const queryRecursively = (client, data, payload) => {
 
-	if (typeof payload == "undefined") {
+	if (typeof payload == 'undefined') {
 		payload = {}
 	}
 
@@ -292,14 +293,14 @@ const queryRecursively = (client, data, payload) => {
 				return
 			}
 
-			// More details on "spread": http://stackoverflow.com/a/30734348/3744180
+			// More details on 'spread': http://stackoverflow.com/a/30734348/3744180
 			data.push(...result.results)
 
 			if (!(result.results) || result.results.length < query_limit) {
 				return Promise.resolve(data)
 			}
 
-			if (!("offset" in payload)) {
+			if (!('offset' in payload)) {
 				payload.offset = query_limit
 				payload.limit = query_limit
 			}
@@ -312,7 +313,7 @@ const queryRecursively = (client, data, payload) => {
 		})
 }
 
-const _query = (client, payload) => _post(client, "queries", null, payload)
+const _query = (client, payload) => _post(client, 'queries', null, payload)
 
 exports.query = function(client, sql, limit) {
 	var payload = {
@@ -328,7 +329,7 @@ exports.query = function(client, sql, limit) {
 exports.export = function(client, sql) {
 	return new Promise((resolve, reject) => {
 
-		var url = getURL(client, "post", "export")
+		var url = getURL(client, 'post', 'export')
 
 		var options = {
 			url: url,
