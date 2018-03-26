@@ -54,16 +54,5 @@
 		"saleschannels": "settings/ticketsales/saleschannels"
     },
     "no_extra_param": ["eventlocktickets", "eventunlocktickets", "ticketsbatch", "tickets", "eventseatranks", "orderdocuments", "emailpaymentinstruction", "emaildelivery"],
-    "urls": {
-      "list": {
-        "RelationType":           "tools/queries",
-        "CustomFieldNewsletter":  "tools/queries",
-        "AddressType":            "tools/queries",
-        "PhoneType":              "tools/queries",
-        "CustomerTitle":          "tools/queries",
-        "EventName":              "tools/queries",
-        "PriceTypeName":          "tools/queries"
-      }
-    },
     "params_optional": ["query", "limit", "offset", "filter", "output"]
 }
