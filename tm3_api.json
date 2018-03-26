@@ -50,8 +50,8 @@
         "export": "tools/queries/export",
         "paymentmethods": "settings/ticketsales/paymentmethods",
         "paymentscenarios": "settings/ticketsales/paymentscenarios",
-		"deliveryscenarios": "settings/ticketsales/deliveryscenarios",
-		"saleschannels": "settings/ticketsales/saleschannels"
+        "deliveryscenarios": "settings/ticketsales/deliveryscenarios",
+        "saleschannels": "settings/ticketsales/saleschannels"
     },
     "no_extra_param": ["eventlocktickets", "eventunlocktickets", "ticketsbatch", "tickets", "eventseatranks", "orderdocuments", "emailpaymentinstruction", "emaildelivery"],
     "params_optional": ["query", "limit", "offset", "filter", "output"]
