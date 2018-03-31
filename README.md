@@ -5,7 +5,15 @@
 ## Installation
 
 ```
+npm install node-env-file
 npm install https://github.com/ticketmaticbenelux/tm_api
+```
+
+If you have a Node.js project with `package.json`, use `--save` to add the dependencies to `package.json`:
+
+```
+npm install --save node-env-file
+npm install --save https://github.com/ticketmaticbenelux/tm_api
 ```
 
 ## Introduction
@@ -55,8 +63,15 @@ api.del(client, "contacts", 10002)
 Execute query:
 
 ```javascript
-let query = "select * from tm.contact limit 10"
+let query = "select * from tm.contact"
 api.query(client, query)
+```
+
+Execute query with a limit:
+
+```javascript
+let query = "select * from tm.contact"
+api.query(client, query, 250)
 ```
 
 Execute query with large number of results:
@@ -76,6 +91,14 @@ api.setDebug(true)
 ```
 
 ## Usage
+
+Create `.env` file with the right environment variables:
+
+```
+SHORTNAME=xxx
+API_KEY=XXX
+API_SECRET=xxx
+```
 
 Example of usage:
 
