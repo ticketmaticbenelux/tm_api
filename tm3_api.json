@@ -12,7 +12,8 @@
     	"events": "events",
     	"eventlocktickets": "events/%d/tickets/lock",
     	"eventunlocktickets": "events/%d/tickets/unlock",
-    	"eventseatranks": "events/%d/tickets/seatrank",
+		"eventseatranks": "events/%d/tickets/seatrank",
+		"eventpurge": "events/%d/purge",		
     	"ticketsbatch": "events/%d/tickets/batch",
     	"orders": "orders",
     	"logs": "orders/%d/logs",
@@ -24,7 +25,8 @@
 	    "emaildelivery": "orders/%d/tickets/emaildelivery",
 	    "orderdocuments": "orders/%d/documents/%d/nl",
 	    "import": "orders/import",	    
-	    "reserve": "orders/import/reserve",
+		"reserve": "orders/import/reserve",
+		"orderspurge": "orders/purge",		
 	    "products": "settings/products",
 	    "pricelists": "settings/pricing/pricelists",
     	"customfields": "settings/system/customfields",
@@ -50,7 +52,7 @@
 	    "export": "tools/queries/export",
 	    "paymentmethods": "settings/ticketsales/paymentmethods",
 	    "paymentscenarios": "settings/ticketsales/paymentscenarios",
-	    "deliveryscenarios": "settings/ticketsales/deliveryscenarios"  
+		"deliveryscenarios": "settings/ticketsales/deliveryscenarios"
     },
     "no_extra_param": ["eventlocktickets", "eventunlocktickets", "ticketsbatch", "tickets", "eventseatranks", "orderdocuments", "emailpaymentinstruction", "emaildelivery"],
     "urls": {
