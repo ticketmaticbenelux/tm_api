@@ -53,7 +53,8 @@
 	    "paymentmethods": "settings/ticketsales/paymentmethods",
 	    "paymentscenarios": "settings/ticketsales/paymentscenarios",
 		"deliveryscenarios": "settings/ticketsales/deliveryscenarios",
-		"saleschannels": "settings/ticketsales/saleschannels"
+		"saleschannels": "settings/ticketsales/saleschannels",
+		"jobs": "jobs/%s"
     },
     "no_extra_param": ["eventlocktickets", "eventunlocktickets", "ticketsbatch", "tickets", "eventseatranks", "orderdocuments", "emailpaymentinstruction", "emaildelivery"],
     "params_optional": ["query", "limit", "offset", "filter", "output"]
