@@ -6,6 +6,8 @@ env(__dirname + '/../.env')
 
 var api = require("../tm_api.js")
 
+api.setDebug(true)
+
 var client = {
 	shortname: process.env.SHORTNAME,
 	key: process.env.API_KEY,
