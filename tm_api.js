@@ -6,13 +6,14 @@ require('https').globalAgent.maxSockets = 5
 var request = require('request')
 var rest = require('rest')
 var mime = require('rest/interceptor/mime')
+var params = require('rest/interceptor/params')
 var moment = require('moment')
 var crypto = require('crypto')
 var util = require('util')
 var R = require('ramda')
 var split = require('split')
 
-var client = rest.wrap(mime, { mime: 'application/json' })
+var client = rest.wrap(mime, { mime: 'application/json' }).wrap(params)
 
 var config = require('./tm3_api.json')
 
@@ -80,7 +81,7 @@ function getParams(payload) {
 	for(var key in payload) {
 
 		// Skip non-allowed optional attributes
-		if (R.contains(key, config.params_optional)) {
+		if (!R.contains(key, config.params_optional)) {
 			console.log("Attribute skipped: %s", key)
 			continue
 		}
@@ -165,7 +166,7 @@ function _getList(client, endpoint, payload) {
 	}
 
 	var params = getParams(payload)
-	var options = { method: 'GET', path: url, params: params }
+	var options = { path: url, params: params }
 	var headers = getHeaders(client)
 	if(headers) {
 		options['headers'] = headers
@@ -188,7 +189,7 @@ exports.get = function(client, endpoint, id, payload) {
 	}
 
 	var params = getParams(payload)
-	var options = { method: 'GET', path: url, params: params }
+	var options = { path: url, params: params }
 	var headers = getHeaders(client)
 	if(headers) {
 		options['headers'] = headers
