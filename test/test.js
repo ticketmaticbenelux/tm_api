@@ -14,5 +14,5 @@ var client = {
 	secret: process.env.API_SECRET
 }
 
-api.getList(client, "contacts")
-.then(r => console.log(r), e => console.log(e))
+api.getList(client, "contacts", {lastupdatesince: "2018-04-10 12:00:00"})
+.then(r => console.log(r.data.length), e => console.log(e))
