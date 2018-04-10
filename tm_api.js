@@ -57,14 +57,14 @@ function getURL(client, type, endpoint, id) {
 	var url
 	if(id) {
 		if(typeof id == 'object') {
-			url = util.format(url_template, client.shortname, id[0], id[1])
+			url = util.format(url_template, client.shortname || "_", id[0], id[1])
 		}
 		else {
-			url = util.format(url_template, client.shortname, id)
+			url = util.format(url_template, client.shortname || "_", id)
 		}
 	}
 	else {
-		url = util.format(url_template, client.shortname)
+		url = util.format(url_template, client.shortname || "_")
 	}
 
 	return url
