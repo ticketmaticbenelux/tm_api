@@ -55,8 +55,9 @@
         "deliveryscenarios": "settings/ticketsales/deliveryscenarios",
         "saleschannels": "settings/ticketsales/saleschannels",
         "jobs": "jobs/%s",
-        "accountparameters": "settings/accountparameters"
+        "accountparameters": "settings/accountparameters",
+        "accounts": "tools/accounts"
     },
-    "no_extra_param": ["eventlocktickets", "eventunlocktickets", "ticketsbatch", "tickets", "eventseatranks", "orderdocuments", "emailpaymentinstruction", "emaildelivery"],
+    "no_extra_param": ["eventlocktickets", "eventunlocktickets", "ticketsbatch", "tickets", "eventseatranks", "orderdocuments", "emailpaymentinstruction", "emaildelivery", "accounts"],
     "params_optional": ["query", "limit", "offset", "filter", "output"]
 }
