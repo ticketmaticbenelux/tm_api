@@ -56,8 +56,11 @@
         "saleschannels": "settings/ticketsales/saleschannels",
         "jobs": "jobs/%s",
         "accountparameters": "settings/accountparameters",
-        "accounts": "tools/accounts"
+        "accounts": "tools/accounts",
+        "seatingplans": "settings/seatingplans/seatingplans",
+        "logicalplan": "settings/seatingplans/seatingplans/%d/logicalplan",
+        "seatdescriptiontemplates": "settings/seatingplans/seatingplans/%d/seatdescriptiontemplates"
     },
-    "no_extra_param": ["eventlocktickets", "eventunlocktickets", "ticketsbatch", "tickets", "eventseatranks", "orderdocuments", "emailpaymentinstruction", "emaildelivery", "accounts"],
+    "no_extra_param": ["eventlocktickets", "eventunlocktickets", "ticketsbatch", "tickets", "eventseatranks", "orderdocuments", "emailpaymentinstruction", "emaildelivery", "accounts", "seatdescriptiontemplates"],
     "params_optional": ["query", "limit", "offset", "filter", "output", "lastupdatesince"]
 }
