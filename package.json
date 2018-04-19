@@ -1,6 +1,6 @@
 {
   "name": "tm_api",
-  "version": "1.1.23",
+  "version": "1.1.24",
   "description": "TM3 API wrapper",
   "main": "tm_api.js",
   "repository": {
