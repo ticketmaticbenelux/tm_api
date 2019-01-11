@@ -66,5 +66,5 @@
         "seatdescriptiontemplates": "settings/seatingplans/seatingplans/%d/seatdescriptiontemplates"
     },
     "no_extra_param": ["eventlocktickets", "eventunlocktickets", "ticketsbatch", "tickets", "eventseatranks", "orderdocuments", "emailpaymentinstruction", "emaildelivery", "accounts", "seatdescriptiontemplates", "jobs", "contactremarks"],
-    "params_optional": ["query", "limit", "offset", "filter", "output", "lastupdatesince"]
+    "params_optional": ["query", "limit", "offset", "filter", "output", "lastupdatesince", "typeid"]
 }
