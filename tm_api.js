@@ -3,6 +3,7 @@
 require('http').globalAgent.maxSockets = 5
 require('https').globalAgent.maxSockets = 5
 
+var fs = require('fs')
 var request = require('request')
 var rest = require('rest')
 var mime = require('rest/interceptor/mime')
@@ -350,6 +351,32 @@ exports.export = function(client, sql) {
 		.on('data', obj => arr.push(obj))
 		.on('end', () => resolve(arr))
 		.on('error', err => reject(err))
+	})
+}
+
+exports.saveimage = function(client, id, filepath) {
+	return new Promise((resolve, reject) => {
+
+		var url = getURL(client, 'post', 'saveimage', id)
+
+		var options = {
+			url: url,
+			encoding: null,
+			body: fs.createReadStream(filepath)
+		}
+
+		var headers = getHeaders(client)
+		if(headers) {
+			options['headers'] = headers
+		}
+
+		counter.post += 1;
+		request.post(options, function (error, response, body) {
+			if (error) {
+			  reject(error);
+			}
+			resolve(body);
+		  })
 	})
 }
 
