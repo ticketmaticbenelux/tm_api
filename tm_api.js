@@ -384,6 +384,14 @@ exports.setDebug = function(input) {
 	config.debug = (input) ? true : false
 }
 
+exports.setHost = function(host) {
+	if (!["apps.ticketmatic.com", "test.ticketmatic.com"].includes(host)) {
+		console.log("Could not set host: %s", host)
+		return
+	}
+	config.host = host
+}
+
 // Statistics related functions
 exports.getStats = () => R.clone(counter)
 
