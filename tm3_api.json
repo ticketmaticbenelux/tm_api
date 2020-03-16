@@ -23,6 +23,7 @@
         "logs": "orders/%d/logs",
         "pdf": "orders/%d/pdf",
         "tickets": "orders/%d/tickets",
+        "orderproducts": "orders/%d/products",
         "payments": "orders/%d/payments",
         "confirm": "orders/%d",
         "emailpaymentinstruction": "orders/%d/tickets/emailpaymentinstruction",
