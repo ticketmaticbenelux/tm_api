@@ -66,7 +66,8 @@
         "logicalplan": "settings/seatingplans/seatingplans/%d/logicalplan",
         "seatdescriptiontemplates": "settings/seatingplans/seatingplans/%d/seatdescriptiontemplates",
         "splitorders": "orders/%d/split",
-        "saveimage": "events/%d/image"
+        "saveimage": "events/%d/image",
+        "optins": "settings/system/optins"
     },
     "no_extra_param": ["eventlocktickets", "eventunlocktickets", "ticketsbatch", "tickets", "orderproducts", "eventseatranks", "orderdocuments", "emailpaymentinstruction", "emaildelivery", "accounts", "seatdescriptiontemplates", "jobs", "contactremarks"],
     "params_optional": ["query", "limit", "offset", "filter", "output", "lastupdatesince", "typeid", "orderby"]
