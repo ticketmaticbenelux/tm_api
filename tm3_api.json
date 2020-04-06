@@ -25,6 +25,7 @@
         "tickets": "orders/%d/tickets",
         "orderproducts": "orders/%d/products",
         "payments": "orders/%d/payments",
+        "refunds": "orders/%d/refunds",
         "confirm": "orders/%d",
         "emailpaymentinstruction": "orders/%d/tickets/emailpaymentinstruction",
         "emaildelivery": "orders/%d/tickets/emaildelivery",
