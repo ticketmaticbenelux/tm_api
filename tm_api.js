@@ -385,11 +385,17 @@ exports.setDebug = function(input) {
 }
 
 exports.setHost = function(host) {
-	if (!["apps.ticketmatic.com", "test.ticketmatic.com", "qa.ticketmatic.com", "localhost:8080"].includes(host)) {
+	if (!["apps.ticketmatic.com", "test.ticketmatic.com", "qa.ticketmatic.com", "localhost"].includes(host)) {
 		console.log("Could not set host: %s", host)
 		return
 	}
-	config.host = host
+	(if host === "localhost") {
+		config.host = `${host}:8080`
+		config.schema = `http`
+	}
+	else {
+		config.host = host
+	}
 }
 
 // Statistics related functions
