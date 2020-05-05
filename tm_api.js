@@ -389,7 +389,7 @@ exports.setHost = function(host) {
 		console.log("Could not set host: %s", host)
 		return
 	}
-	(if host === "localhost") {
+	if (host === "localhost") {
 		config.host = `${host}:8080`
 		config.schema = `http`
 	}
