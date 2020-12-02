@@ -53,7 +53,7 @@ function getURL(client, type, endpoint, id) {
 	var url_template = config.schema + '://' + config.host + config.path + config.endpoints[endpoint]
 
 	if((type == 'get' || type == 'put' || type == 'delete') && !R.contains(endpoint,config.no_extra_param)) {
-		url_template += '/%d'
+		url_template += '/%s'
 	}
 
 	var url
@@ -399,7 +399,7 @@ exports.setHost = function(host) {
 		return
 	}
 	if (host === "localhost") {
-		config.host = `${host}:8080`
+		config.host = `${host}:9002`
 		config.schema = `http`
 	}
 	else {
