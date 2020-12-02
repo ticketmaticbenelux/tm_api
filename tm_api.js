@@ -384,6 +384,15 @@ exports.setDebug = function(input) {
 	config.debug = (input) ? true : false
 }
 
+exports.setSchema = function(schema) {
+	if (!["http", "https"].includes(schema)) {
+		console.log("Could not set schema: %s", schema)
+		return
+	}
+
+	config.schema = schema;
+}
+
 exports.setHost = function(host) {
 	if (!["apps.ticketmatic.com", "test.ticketmatic.com", "qa.ticketmatic.com", "localhost"].includes(host)) {
 		console.log("Could not set host: %s", host)
