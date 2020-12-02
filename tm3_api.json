@@ -73,5 +73,5 @@
         "flowinfo": "settings/system/ticketsalesflows/flowinfo"
     },
     "no_extra_param": ["eventlocktickets", "eventunlocktickets", "ticketsbatch", "tickets", "orderproducts", "eventseatranks", "orderdocuments", "emailpaymentinstruction", "emaildelivery", "accounts", "seatdescriptiontemplates", "jobs", "contactremarks"],
-    "params_optional": ["query", "limit", "offset", "filter", "output", "lastupdatesince", "typeid", "orderby"]
+    "params_optional": ["query", "limit", "offset", "filter", "output", "lastupdatesince", "typeid", "orderby", "simplefilter"]
 }
