@@ -10,6 +10,7 @@
         "contactsreserve": "contacts/import/reserve",
         "contactaddresstypes": "settings/system/contactaddresstypes",
         "phonenumbertypes": "settings/system/phonenumbertypes",
+        "contactremarks": "contacts/%d/remarks",
         "contacttitles": "settings/system/contacttitles",
         "relationtypes": "settings/system/relationtypes",
         "events": "events",
@@ -64,6 +65,6 @@
         "logicalplan": "settings/seatingplans/seatingplans/%d/logicalplan",
         "seatdescriptiontemplates": "settings/seatingplans/seatingplans/%d/seatdescriptiontemplates"
     },
-    "no_extra_param": ["eventlocktickets", "eventunlocktickets", "ticketsbatch", "tickets", "eventseatranks", "orderdocuments", "emailpaymentinstruction", "emaildelivery", "accounts", "seatdescriptiontemplates", "logs"],
-    "params_optional": ["query", "limit", "offset", "filter", "output", "lastupdatesince"]
+    "no_extra_param": ["eventlocktickets", "eventunlocktickets", "ticketsbatch", "tickets", "eventseatranks", "orderdocuments", "emailpaymentinstruction", "emaildelivery", "accounts", "seatdescriptiontemplates", "jobs", "contactremarks", "logs"],
+    "params_optional": ["query", "limit", "offset", "filter", "output", "lastupdatesince", "typeid"]
 }
