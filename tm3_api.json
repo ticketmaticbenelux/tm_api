@@ -72,6 +72,21 @@
         "ticketsalesflows": "settings/system/ticketsalesflows",
         "flowinfo": "settings/system/ticketsalesflows/flowinfo"
     },
-    "no_extra_param": ["eventlocktickets", "eventunlocktickets", "ticketsbatch", "tickets", "orderproducts", "eventseatranks", "orderdocuments", "emailpaymentinstruction", "emaildelivery", "accounts", "seatdescriptiontemplates", "jobs", "contactremarks"],
+    "no_extra_param": [
+       "accounts",
+       "contactremarks",
+       "emaildelivery",
+       "emailpaymentinstruction",
+       "eventlocktickets",
+       "eventseatranks",
+       "eventunlocktickets",
+       "jobs",
+       "logs",
+       "orderdocuments",
+       "orderproducts",
+       "seatdescriptiontemplates",
+       "tickets",
+       "ticketsbatch"  
+    ],
     "params_optional": ["query", "limit", "offset", "filter", "output", "lastupdatesince", "typeid", "orderby", "simplefilter"]
 }
