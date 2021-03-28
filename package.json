@@ -1,6 +1,6 @@
 {
   "name": "tm_api",
-  "version": "1.1.38",
+  "version": "1.1.39",
   "description": "TM3 API wrapper",
   "main": "tm_api.js",
   "repository": {
@@ -16,12 +16,12 @@
   "author": "Ticketmatic Nederland",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.21.1",
     "http": "0.0.0",
     "https": "^1.0.0",
     "moment": "^2.22.2",
     "node-env-file": "^0.1.8",
     "ramda": "^0.21.0",
-    "request": "^2.88.0",
     "rest": "^2.0.0",
     "split": "^1.0.1",
     "util": "^0.10.4"

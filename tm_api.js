@@ -3,8 +3,8 @@
 require('http').globalAgent.maxSockets = 5
 require('https').globalAgent.maxSockets = 5
 
+var axios = require('axios')
 var fs = require('fs')
-var request = require('request')
 var rest = require('rest')
 var mime = require('rest/interceptor/mime')
 var params = require('rest/interceptor/params')
@@ -329,54 +329,62 @@ exports.query = function(client, sql, limit) {
 }
 
 exports.export = function(client, sql) {
-	return new Promise((resolve, reject) => {
+	return new Promise(async (resolve, reject) => {
 
 		var url = getURL(client, 'post', 'export')
 
-		var options = {
-			url: url,
-			json: { query: sql }
+		var config = {
+			method: 'post',
+			url,
+			responseType: 'stream',
+			data: { query: sql }
 		}
 
 		var headers = getHeaders(client)
-		if(headers) {
-			options['headers'] = headers
+		if (headers) {
+			config['headers'] = headers
 		}
 
 		var arr = []
 
 		counter.export += 1;
-		request.post(options)
-		.pipe(split(JSON.parse, null, { trailing: false }))
-		.on('data', obj => arr.push(obj))
-		.on('end', () => resolve(arr))
-		.on('error', err => reject(err))
+
+		try {
+			const response = await axios(config)
+			response.data.pipe(split(JSON.parse, null, { trailing: false }))
+				.on('data', obj => arr.push(obj))
+				.on('end', () => resolve(arr))
+				.on('error', err => reject(err))
+		}
+		catch (err) {
+			reject(err)
+		}
 	})
 }
 
 exports.saveimage = function(client, id, filepath) {
-	return new Promise((resolve, reject) => {
-
+	return new Promise(async (resolve, reject) => {
 		var url = getURL(client, 'post', 'saveimage', id)
-
-		var options = {
-			url: url,
+		var config = {
+			method: 'post',
+			url,
 			encoding: null,
-			body: fs.createReadStream(filepath)
+			data: fs.createReadStream(filepath)
 		}
 
 		var headers = getHeaders(client)
-		if(headers) {
-			options['headers'] = headers
+		if (headers) {
+			config['headers'] = headers
 		}
 
 		counter.post += 1;
-		request.post(options, function (error, response, body) {
-			if (error) {
-			  reject(error);
-			}
-			resolve(body);
-		  })
+		try {
+			const response = await axios(config)
+			resolve(response.data)
+		}
+		catch (err) {
+			reject(err)
+		}
 	})
 }
 
