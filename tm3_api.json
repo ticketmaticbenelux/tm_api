@@ -23,7 +23,9 @@
         "logs": "orders/%d/logs",
         "pdf": "orders/%d/pdf",
         "tickets": "orders/%d/tickets",
+        "orderproducts": "orders/%d/products",
         "payments": "orders/%d/payments",
+        "refunds": "orders/%d/refunds",
         "confirm": "orders/%d",
         "emailpaymentinstruction": "orders/%d/tickets/emailpaymentinstruction",
         "emaildelivery": "orders/%d/tickets/emaildelivery",
@@ -63,8 +65,28 @@
         "accounts": "tools/accounts",
         "seatingplans": "settings/seatingplans/seatingplans",
         "logicalplan": "settings/seatingplans/seatingplans/%d/logicalplan",
-        "seatdescriptiontemplates": "settings/seatingplans/seatingplans/%d/seatdescriptiontemplates"
+        "seatdescriptiontemplates": "settings/seatingplans/seatingplans/%d/seatdescriptiontemplates",
+        "splitorders": "orders/%d/split",
+        "saveimage": "events/%d/image",
+        "optins": "settings/system/optins",
+        "ticketsalesflows": "settings/system/ticketsalesflows",
+        "flowinfo": "settings/system/ticketsalesflows/flowinfo"
     },
-    "no_extra_param": ["eventlocktickets", "eventunlocktickets", "ticketsbatch", "tickets", "eventseatranks", "orderdocuments", "emailpaymentinstruction", "emaildelivery", "accounts", "seatdescriptiontemplates", "jobs", "contactremarks", "logs"],
-    "params_optional": ["query", "limit", "offset", "filter", "output", "lastupdatesince", "typeid"]
+    "no_extra_param": [
+       "accounts",
+       "contactremarks",
+       "emaildelivery",
+       "emailpaymentinstruction",
+       "eventlocktickets",
+       "eventseatranks",
+       "eventunlocktickets",
+       "jobs",
+       "logs",
+       "orderdocuments",
+       "orderproducts",
+       "seatdescriptiontemplates",
+       "tickets",
+       "ticketsbatch"  
+    ],
+    "params_optional": ["query", "limit", "offset", "filter", "output", "lastupdatesince", "typeid", "orderby", "simplefilter"]
 }

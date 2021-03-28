@@ -3,7 +3,8 @@
 require('http').globalAgent.maxSockets = 5
 require('https').globalAgent.maxSockets = 5
 
-var request = require('request')
+var axios = require('axios')
+var fs = require('fs')
 var rest = require('rest')
 var mime = require('rest/interceptor/mime')
 var params = require('rest/interceptor/params')
@@ -52,7 +53,7 @@ function getURL(client, type, endpoint, id) {
 	var url_template = config.schema + '://' + config.host + config.path + config.endpoints[endpoint]
 
 	if((type == 'get' || type == 'put' || type == 'delete') && !R.contains(endpoint,config.no_extra_param)) {
-		url_template += '/%d'
+		url_template += '/%s'
 	}
 
 	var url
@@ -328,33 +329,90 @@ exports.query = function(client, sql, limit) {
 }
 
 exports.export = function(client, sql) {
-	return new Promise((resolve, reject) => {
+	return new Promise(async (resolve, reject) => {
 
 		var url = getURL(client, 'post', 'export')
 
-		var options = {
-			url: url,
-			json: { query: sql }
+		var config = {
+			method: 'post',
+			url,
+			responseType: 'stream',
+			data: { query: sql }
 		}
 
 		var headers = getHeaders(client)
-		if(headers) {
-			options['headers'] = headers
+		if (headers) {
+			config['headers'] = headers
 		}
 
 		var arr = []
 
 		counter.export += 1;
-		request.post(options)
-		.pipe(split(JSON.parse, null, { trailing: false }))
-		.on('data', obj => arr.push(obj))
-		.on('end', () => resolve(arr))
-		.on('error', err => reject(err))
+
+		try {
+			const response = await axios(config)
+			response.data.pipe(split(JSON.parse, null, { trailing: false }))
+				.on('data', obj => arr.push(obj))
+				.on('end', () => resolve(arr))
+				.on('error', err => reject(err))
+		}
+		catch (err) {
+			reject(err)
+		}
+	})
+}
+
+exports.saveimage = function(client, id, filepath) {
+	return new Promise(async (resolve, reject) => {
+		var url = getURL(client, 'post', 'saveimage', id)
+		var config = {
+			method: 'post',
+			url,
+			encoding: null,
+			data: fs.createReadStream(filepath)
+		}
+
+		var headers = getHeaders(client)
+		if (headers) {
+			config['headers'] = headers
+		}
+
+		counter.post += 1;
+		try {
+			const response = await axios(config)
+			resolve(response.data)
+		}
+		catch (err) {
+			reject(err)
+		}
 	})
 }
 
 exports.setDebug = function(input) {
 	config.debug = (input) ? true : false
+}
+
+exports.setSchema = function(schema) {
+	if (!["http", "https"].includes(schema)) {
+		console.log("Could not set schema: %s", schema)
+		return
+	}
+
+	config.schema = schema;
+}
+
+exports.setHost = function(host) {
+	if (!["apps.ticketmatic.com", "test.ticketmatic.com", "qa.ticketmatic.com", "localhost"].includes(host)) {
+		console.log("Could not set host: %s", host)
+		return
+	}
+	if (host === "localhost") {
+		config.host = `${host}:9002`
+		config.schema = `http`
+	}
+	else {
+		config.host = host
+	}
 }
 
 // Statistics related functions
