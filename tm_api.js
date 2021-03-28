@@ -3,62 +3,61 @@
 require('http').globalAgent.maxSockets = 5
 require('https').globalAgent.maxSockets = 5
 
-var axios = require('axios')
-var fs = require('fs')
-var rest = require('rest')
-var mime = require('rest/interceptor/mime')
-var params = require('rest/interceptor/params')
-var moment = require('moment')
-var crypto = require('crypto')
-var util = require('util')
-var R = require('ramda')
-var split = require('split')
+const axios = require('axios')
+const fs = require('fs')
+const rest = require('rest')
+const mime = require('rest/interceptor/mime')
+const params = require('rest/interceptor/params')
+const moment = require('moment')
+const crypto = require('crypto')
+const util = require('util')
+const R = require('ramda')
+const split = require('split')
 
-var client = rest.wrap(mime, { mime: 'application/json' }).wrap(params)
+const client = rest.wrap(mime, { mime: 'application/json' }).wrap(params)
 
-var config = require('./tm3_api.json')
+const config = require('./tm3_api.json')
 
-var counter
+let counter
 
 // API offset limit
-var limit = 100
-var query_limit = 1000
+const LIMIT = 100
+const QUERY_LIMIT = 1000
 
 // TM3 Authorization header
 function getHeaders(client) {
-	var key, auth_scheme, algorithm, timestamp, payload, hmac, signature, auth_header
-	key = client.key
-	auth_scheme = 'TM-HMAC-SHA256'
-	algorithm = 'sha256'
-	timestamp = moment().utc().format('YYYY-MM-DDTHH:mm:ss')
-	payload = key + client.shortname + timestamp
-	hmac = crypto.createHmac(algorithm, client.secret)
+	const key = client.key
+	const auth_scheme = 'TM-HMAC-SHA256'
+	const algorithm = 'sha256'
+	const timestamp = moment().utc().format('YYYY-MM-DDTHH:mm:ss')
+	const payload = key + client.shortname + timestamp
+	const hmac = crypto.createHmac(algorithm, client.secret)
 	hmac.setEncoding('hex')
 	hmac.write(payload)
 	hmac.end()
-	signature = hmac.read()
-	auth_header = util.format('%s key=%s ts=%s sign=%s', auth_scheme, key, timestamp, signature)
+	const signature = hmac.read()
+	const auth_header = util.format('%s key=%s ts=%s sign=%s', auth_scheme, key, timestamp, signature)
 	return {'Authorization': auth_header}
 }
 
 function getURL(client, type, endpoint, id) {
-	if(!(R.contains(type, ['getList', 'get', 'post', 'put', 'delete']))) {
+	if (!(R.contains(type, ['getList', 'get', 'post', 'put', 'delete']))) {
 		return false
 	}
 
-	if(!(endpoint in config.endpoints)) {
+	if (!(endpoint in config.endpoints)) {
 		return false
 	}
 
 	var url_template = config.schema + '://' + config.host + config.path + config.endpoints[endpoint]
 
-	if((type == 'get' || type == 'put' || type == 'delete') && !R.contains(endpoint,config.no_extra_param)) {
+	if ((type == 'get' || type == 'put' || type == 'delete') && !R.contains(endpoint,config.no_extra_param)) {
 		url_template += '/%s'
 	}
 
 	var url
-	if(id) {
-		if(typeof id == 'object') {
+	if (id) {
+		if (typeof id == 'object') {
 			url = util.format(url_template, client.shortname || "_", id[0], id[1])
 		}
 		else {
@@ -73,7 +72,7 @@ function getURL(client, type, endpoint, id) {
 }
 
 function getParams(payload) {
-	if(typeof payload === 'undefined') {
+	if (typeof payload === 'undefined') {
 		return {}
 	}
 
@@ -93,27 +92,26 @@ function getParams(payload) {
 	return params
 }
 
-function _request(options) {
-	return client(options).then(function(data) {
-		return new Promise(function(resolve, reject) {
-			if (data.status.code == 200) {
-				resolve(data.entity)
+async function _request(options) {
+	const data = await client(options)
+	return new Promise(function(resolve, reject) {
+		if (data.status.code == 200) {
+			resolve(data.entity)
+		}
+		else {
+			if (config.debug) {
+				console.log({message: 'API request failed', options: options, response_code: data.status.code, response: data.entity})
+			}
+
+			var message
+			if (data.entity.message) {
+				message = data.entity.message
 			}
 			else {
-				if(config.debug) {
-					console.log({message: 'API request failed', options: options, response_code: data.status.code, response: data.entity})
-				}
-
-				var message
-				if (data.entity.message) {
-					message = data.entity.message
-				}
-				else {
-					message = 'Onbekende fout in API'
-				}
-				reject(message)
+				message = 'Unknown error in Ticketmatic API'
 			}
-		})
+			reject(message)
+		}
 	})
 }
 
@@ -122,40 +120,35 @@ function _request(options) {
  */
 exports.getListAll = function(client, endpoint, payload) {
 	counter.get += 1;
-	return getRecursively(client, [], endpoint, payload)
+	return getListRecursively(client, [], endpoint, payload)
 }
 
-function getListRecursively(client, data, endpoint, payload) {
-
+async function getListRecursively(client, data, endpoint, payload) {
 	if (typeof payload == 'undefined') {
 		payload = {}
 	}
 
-	return _getList(client, endpoint, payload)
-		.then(function(result) {
+	const result = await _getList(client, endpoint, payload)
+	if (!result) {
+		return
+	}
 
-			if (!result) {
-				return
-			}
+	data.push(...result.data)
 
-			// More details on 'spread': http://stackoverflow.com/a/30734348/3744180
-			data.push(...result.data)
+	if (!(result.data) || result.data.length < LIMIT) {
+		return Promise.resolve(data)
+	}
 
-			if (!(result.data) || result.data.length < limit) {
-				return Promise.resolve(data)
-			}
+	if (!('offset' in payload)) {
+		payload.offset = LIMIT
+		payload.limit = LIMIT
+	}
+	else {
+		payload.offset += LIMIT
+		payload.limit = LIMIT
+	}
 
-			if (!('offset' in payload)) {
-				payload.offset = limit
-				payload.limit = limit
-			}
-			else {
-				payload.offset += limit
-				payload.limit = limit
-			}
-
-			return getRecursively(client, data, endpoint, payload)
-		})
+	return getListRecursively(client, data, endpoint, payload)
 }
 
 function _getList(client, endpoint, payload) {
@@ -169,7 +162,7 @@ function _getList(client, endpoint, payload) {
 	var params = getParams(payload)
 	var options = { path: url, params: params }
 	var headers = getHeaders(client)
-	if(headers) {
+	if (headers) {
 		options['headers'] = headers
 	}
 
@@ -192,7 +185,7 @@ exports.get = function(client, endpoint, id, payload) {
 	var params = getParams(payload)
 	var options = { path: url, params: params }
 	var headers = getHeaders(client)
-	if(headers) {
+	if (headers) {
 		options['headers'] = headers
 	}
 
@@ -208,18 +201,18 @@ exports.put = function(client, endpoint, id, payload) {
 		return Promise.reject(new Error('Unknown put ' + endpoint))
 	}
 
-	if(!payload) {
+	if (!payload) {
 		return Promise.reject('[TM API] No payload for PUT request.')
 	}	
 
-	if(Object.keys(payload).length == 0) {
+	if (Object.keys(payload).length == 0) {
 		return Promise.resolve()
 	}
 
 	var entity = payload
 	var options = { method: 'PUT', path: url, params: {}, entity: entity }
 	var headers = getHeaders(client)
-	if(headers) {
+	if (headers) {
 		options['headers'] = headers
 	}
 
@@ -238,7 +231,7 @@ var _post = function(client, endpoint, id, payload) {
 	var entity = payload
 	var options = { method: 'POST', path: url, params: {}, entity: entity }
 	var headers = getHeaders(client)
-	if(headers) {
+	if (headers) {
 		options['headers'] = headers
 	}
 
@@ -261,7 +254,7 @@ exports.del = function(client, endpoint, id, payload) {
 	var entity = payload
 	var options = { method: 'DELETE', path: url, params: {}, entity: entity }
 	var headers = getHeaders(client)
-	if(headers) {
+	if (headers) {
 		options['headers'] = headers
 	}
 
@@ -275,57 +268,54 @@ exports.del = function(client, endpoint, id, payload) {
 exports.queryAll = function(client, sql) {
 	var payload = {
 		query: sql,
-		limit: query_limit
+		limit: QUERY_LIMIT
 	}
 
 	counter.query += 1;
 	return queryRecursively(client, [], payload)
 }
 
-const queryRecursively = (client, data, payload) => {
+const queryRecursively = async (client, data, payload) => {
 
 	if (typeof payload == 'undefined') {
 		payload = {}
 	}
 
-	return _query(client, payload)
-		.then(function(result) {
+	const result = await _query(client, payload)
 
-			if (!result.results) {
-				return
-			}
+	if (!result.results) {
+		return
+	}
 
-			// More details on 'spread': http://stackoverflow.com/a/30734348/3744180
-			data.push(...result.results)
+	data.push(...result.results)
 
-			if (!(result.results) || result.results.length < query_limit) {
-				return Promise.resolve(data)
-			}
+	if (!(result.results) || result.results.length < QUERY_LIMIT) {
+		return Promise.resolve(data)
+	}
 
-			if (!('offset' in payload)) {
-				payload.offset = query_limit
-				payload.limit = query_limit
-			}
-			else {
-				payload.offset += query_limit
-				payload.limit = query_limit
-			}
+	if (!('offset' in payload)) {
+		payload.offset = QUERY_LIMIT
+		payload.limit = QUERY_LIMIT
+	}
+	else {
+		payload.offset += QUERY_LIMIT
+		payload.limit = QUERY_LIMIT
+	}
 
-			return queryRecursively(client, data, payload)
-		})
+	return queryRecursively(client, data, payload)
 }
 
 const _query = (client, payload) => _post(client, 'queries', null, payload)
 
-exports.query = function(client, sql, limit) {
+exports.query = async function(client, sql, limit) {
 	var payload = {
 		limit: limit,
 		query: sql
 	}
 
 	counter.query += 1;
-	return _query(client, payload)
-	.then(res => res.results)
+	const res = await _query(client, payload)
+	return res.results
 }
 
 exports.export = function(client, sql) {
