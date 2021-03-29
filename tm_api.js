@@ -318,37 +318,50 @@ exports.query = async function(client, sql, limit) {
 	return res.results
 }
 
-exports.export = function(client, sql) {
-	return new Promise(async (resolve, reject) => {
-
-		var url = getURL(client, 'post', 'export')
-
-		var config = {
-			method: 'post',
-			url,
-			responseType: 'stream',
-			data: { query: sql }
+async function postWithStream(config) {
+	try {
+		const response = await axios(config)
+		return response
+	}
+	catch (error) {
+		if (error.response) {
+			if (error.response.status === 401) {
+				throw new Error(`TM API responds with status 'Unauthorized'`)
+			}
+			throw new Error(`TM API error with status ${error.response.status}`)
+		} else if (error.request) {
+			throw new Error(`TM API Error: Request was made but no response was received`)
+		} else {
+			throw new Error(`TM API Error: ${error.message}`)
 		}
+	}
+}
 
-		var headers = getHeaders(client)
-		if (headers) {
-			config['headers'] = headers
-		}
+exports.export = async function(client, sql) {
+	const url = getURL(client, 'post', 'export')
 
-		var arr = []
+	const config = {
+		method: 'post',
+		url,
+		responseType: 'stream',
+		data: { query: sql }
+	}
 
-		counter.export += 1;
+	const headers = getHeaders(client)
+	if (headers) {
+		config['headers'] = headers
+	}
 
-		try {
-			const response = await axios(config)
-			response.data.pipe(split(JSON.parse, null, { trailing: false }))
-				.on('data', obj => arr.push(obj))
-				.on('end', () => resolve(arr))
-				.on('error', err => reject(err))
-		}
-		catch (err) {
-			reject(err)
-		}
+	const arr = []
+
+	counter.export += 1;
+
+	const response = await postWithStream(config)
+	return new Promise((resolve, reject) => {
+		response.data.pipe(split(JSON.parse, null, { trailing: false }))
+		.on('data', obj => arr.push(obj))
+		.on('end', () => resolve(arr))
+		.on('error', err => reject(err))
 	})
 }
 
