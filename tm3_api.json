@@ -70,7 +70,8 @@
         "saveimage": "events/%d/image",
         "optins": "settings/system/optins",
         "ticketsalesflows": "settings/system/ticketsalesflows",
-        "flowinfo": "settings/system/ticketsalesflows/flowinfo"
+        "flowinfo": "settings/system/ticketsalesflows/flowinfo",
+        "split": "events/%d/internalcosts"
     },
     "no_extra_param": [
        "accounts",
@@ -85,6 +86,7 @@
        "orderdocuments",
        "orderproducts",
        "seatdescriptiontemplates",
+       "split",
        "tickets",
        "ticketsbatch"  
     ],
