@@ -105,8 +105,11 @@ async function _request(options) {
 
 			const response = JSON.parse(data.entity)
 			var message
-			if (response.message) {
-				message = JSON.parse(data.entity).message
+			if (response.message && response.error) {
+				message = `${response.message}: ${response.error}`
+			}
+			else if (response.message) {
+				message = response.message
 			}
 			else {
 				message = 'Unknown error in Ticketmatic API'
