@@ -103,9 +103,10 @@ async function _request(options) {
 				console.log({message: 'API request failed', options: options, response_code: data.status.code, response: data.entity})
 			}
 
+			const response = JSON.parse(data.entity)
 			var message
-			if (data.entity.message) {
-				message = data.entity.message
+			if (response.message) {
+				message = JSON.parse(data.entity).message
 			}
 			else {
 				message = 'Unknown error in Ticketmatic API'
