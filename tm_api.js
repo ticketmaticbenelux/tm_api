@@ -133,9 +133,6 @@ exports.getListAllWithLookup = function(client, endpoint, payload) {
 		data: [],
 		lookup: {},
 	}
-	if (!("output" in payload)) {
-		payload.output = "withlookup"
-	}
 	return getListRecursivelyWithLookup(client, initial, endpoint, payload)
 }
 
@@ -143,6 +140,9 @@ async function getListRecursively(client, data, endpoint, payload) {
 	if (typeof payload == 'undefined') {
 		payload = {}
 	}
+	if (!("output" in payload)) {
+		payload.output = "withlookup"
+	}	
 
 	const result = await _getList(client, endpoint, payload)
 	if (!result) {
