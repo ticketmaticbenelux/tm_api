@@ -127,6 +127,18 @@ exports.getListAll = function(client, endpoint, payload) {
 	return getListRecursively(client, [], endpoint, payload)
 }
 
+exports.getListAllWithLookup = function(client, endpoint, payload) {
+	counter.get += 1;
+	const initial = {
+		data: [],
+		lookup: {},
+	}
+	if (!("output" in payload)) {
+		payload.output = "withlookup"
+	}
+	return getListRecursivelyWithLookup(client, initial, endpoint, payload)
+}
+
 async function getListRecursively(client, data, endpoint, payload) {
 	if (typeof payload == 'undefined') {
 		payload = {}
@@ -153,6 +165,36 @@ async function getListRecursively(client, data, endpoint, payload) {
 	}
 
 	return getListRecursively(client, data, endpoint, payload)
+}
+
+async function getListRecursivelyWithLookup(client, accum, endpoint, payload) {
+	if (typeof payload == 'undefined') {
+		payload = { output: "withlookup" }
+	}
+
+	const result = await _getList(client, endpoint, payload)
+	if (!result) {
+		console.log("No result")
+		return Promise.resolve(accum)
+	}
+
+	accum.data.push(...result.data)
+	accum.lookup = { ...accum.lookup, ...result.lookup }
+
+	if (!(result.data) || result.data.length < LIMIT) {
+		return Promise.resolve(accum)
+	}
+
+	if (!('offset' in payload)) {
+		payload.offset = LIMIT
+		payload.limit = LIMIT
+	}
+	else {
+		payload.offset += LIMIT
+		payload.limit = LIMIT
+	}
+
+	return getListRecursivelyWithLookup(client, accum, endpoint, payload)
 }
 
 function _getList(client, endpoint, payload) {
