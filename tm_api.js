@@ -22,7 +22,7 @@ const config = require('./tm3_api.json')
 let counter
 
 // API offset limit
-const LIMIT = 100
+const LIMIT = 1000
 const QUERY_LIMIT = 1000
 
 // TM3 Authorization header
