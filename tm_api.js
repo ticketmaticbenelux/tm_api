@@ -13,6 +13,7 @@ const crypto = require('crypto')
 const util = require('util')
 const R = require('ramda')
 const split = require('split')
+const deepmerge = require('deepmerge')
 
 const client = rest.wrap(mime, { mime: 'application/json' }).wrap(params)
 
@@ -185,7 +186,7 @@ async function getListRecursivelyWithLookup(client, accum, endpoint, payload) {
 	}
 
 	accum.data.push(...result.data)
-	accum.lookup = { ...accum.lookup, ...result.lookup }
+	accum.lookup = deepmerge(accum.lookup, result.lookup)
 
 	if (!(result.data) || result.data.length < LIMIT) {
 		return Promise.resolve(accum)
