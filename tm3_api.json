@@ -71,7 +71,8 @@
         "optins": "settings/system/optins",
         "ticketsalesflows": "settings/system/ticketsalesflows",
         "flowinfo": "settings/system/ticketsalesflows/flowinfo",
-        "split": "events/%d/internalcosts"
+        "split": "events/%d/internalcosts",
+        "waitinglistrequests": "sales/waitinglistrequests"
     },
     "no_extra_param": [
        "accounts",
