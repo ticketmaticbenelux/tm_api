@@ -16,7 +16,7 @@
   "author": "Ticketmatic Nederland",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.21.1",
+    "axios": "^1.6.0",
     "deepmerge": "^4.2.2",
     "http": "0.0.0",
     "https": "^1.0.0",
