@@ -372,76 +372,66 @@ exports.query = async function(client, sql, limit) {
 }
 
 async function postWithStream(config) {
-	try {
-		const response = await axios(config)
-		return response
-	}
-	catch (error) {
-		if (error.response) {
-			if (error.response.status === 401) {
-				throw new Error(`TM API responds with status 'Unauthorized'`)
-			}
-			throw new Error(`TM API error with status ${error.response.status}`)
-		} else if (error.request) {
-			throw new Error(`TM API Error: Request was made but no response was received`)
-		} else {
-			throw new Error(`TM API Error: ${error.message}`)
-		}
-	}
+    try {
+        const response = await axios(config);
+        return response;
+    } catch (error) {
+        if (error.response) {
+            if (error.response.status === 401) {
+                throw new Error(`TM API responds with status 'Unauthorized'`);
+            }
+            throw new Error(`TM API error with status ${error.response.status}`);
+        } else if (error.request) {
+            throw new Error(`TM API Error: Request was made but no response was received`);
+        } else {
+            throw new Error(`TM API Error: ${error.message}`);
+        }
+    }
 }
 
 exports.export = async function(client, sql) {
-	const url = getURL(client, 'post', 'export')
+    const url = getURL(client, 'post', 'export');
 
-	const config = {
-		method: 'post',
-		url,
-		responseType: 'stream',
-		data: { query: sql }
-	}
+    const config = {
+        method: 'post',
+        url,
+        headers: getHeaders(client),
+        responseType: 'stream', // Gebruik de correcte optie voor streams in axios
+        data: { query: sql }
+    };
 
-	const headers = getHeaders(client)
-	if (headers) {
-		config['headers'] = headers
-	}
+    const arr = [];
 
-	const arr = []
+    counter.export += 1;
 
-	counter.export += 1;
-
-	const response = await postWithStream(config)
-	return new Promise((resolve, reject) => {
-		response.data.pipe(split(JSON.parse, null, { trailing: false }))
-		.on('data', obj => arr.push(obj))
-		.on('end', () => resolve(arr))
-		.on('error', err => reject(err))
-	})
+    const response = await postWithStream(config);
+    return new Promise((resolve, reject) => {
+        response.data.pipe(split(JSON.parse, null, { trailing: false }))
+        .on('data', obj => arr.push(obj))
+        .on('end', () => resolve(arr))
+        .on('error', err => reject(err));
+    });
 }
 
 exports.saveimage = function(client, id, filepath) {
-	return new Promise(async (resolve, reject) => {
-		var url = getURL(client, 'post', 'saveimage', id)
-		var config = {
-			method: 'post',
-			url,
-			encoding: null,
-			data: fs.createReadStream(filepath)
-		}
+    return new Promise(async (resolve, reject) => {
+        var url = getURL(client, 'post', 'saveimage', id);
+        var config = {
+            method: 'post',
+            url,
+            headers: getHeaders(client),
+            data: fs.createReadStream(filepath),
+            responseType: 'arraybuffer', // Aanpassing voor axios 1.3.1
+        };
 
-		var headers = getHeaders(client)
-		if (headers) {
-			config['headers'] = headers
-		}
-
-		counter.post += 1;
-		try {
-			const response = await axios(config)
-			resolve(response.data)
-		}
-		catch (err) {
-			reject(err)
-		}
-	})
+        counter.post += 1;
+        try {
+            const response = await axios(config);
+            resolve(response.data);
+        } catch (err) {
+            reject(err);
+        }
+    });
 }
 
 exports.setDebug = function(input) {
