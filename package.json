@@ -1,6 +1,6 @@
 {
   "name": "tm_api",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "TM3 API wrapper",
   "main": "tm_api.js",
   "scripts": {
@@ -11,14 +11,10 @@
   ],
   "author": "Ticketmatic Benelux",
   "license": "ISC",
-  "dependencies": {
-    "crypto": "0.0.3",
-    "http": "0.0.0",
-    "https": "^1.0.0",
-    "moment": "^2.14.1",
-    "node-env-file": "^0.1.8",
-    "ramda": "^0.21.0",
-    "rest": "^2.0.0",
-    "util": "^0.10.3"
+  "engines": {
+    "node": ">=10"
+  },
+  "devDependencies": {
+    "dotenv": "^16.4.7"
   }
 }

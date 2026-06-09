@@ -70,8 +70,7 @@ api.query(client, query)
 Example of usage:
 
 ```javascript
-var env = require('node-env-file')
-env(__dirname + './.env')
+require('dotenv').config()
 
 var api = require("tm_api")
 
