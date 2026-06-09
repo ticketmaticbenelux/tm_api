@@ -103,8 +103,7 @@ API_SECRET=xxx
 Example of usage:
 
 ```javascript
-const env = require('node-env-file')
-env(__dirname + './.env')
+require('dotenv').config()
 
 const api = require("tm_api")
 

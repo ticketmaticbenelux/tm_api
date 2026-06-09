@@ -18,7 +18,7 @@
         "eventunlocktickets": "events/%d/tickets/unlock",
         "eventseatranks": "events/%d/tickets/seatrank",
         "eventtranslations": "events/%d/translate",
-        "eventpurge": "events/%d/purge",        
+        "eventpurge": "events/%d/purge",
         "ticketsbatch": "events/%d/tickets/batch",
         "orders": "orders",
         "logs": "orders/%d/logs",
@@ -31,9 +31,9 @@
         "emailpaymentinstruction": "orders/%d/tickets/emailpaymentinstruction",
         "emaildelivery": "orders/%d/tickets/emaildelivery",
         "orderdocuments": "orders/%d/documents/%d/nl",
-        "import": "orders/import",        
+        "import": "orders/import",
         "reserve": "orders/import/reserve",
-        "orderspurge": "orders/purge",        
+        "orderspurge": "orders/purge",
         "products": "settings/products",
         "pricelists": "settings/pricing/pricelists",
         "customfields": "settings/system/customfields",
@@ -91,7 +91,7 @@
        "seatdescriptiontemplates",
        "split",
        "tickets",
-       "ticketsbatch"  
+       "ticketsbatch"
     ],
     "params_optional": ["query", "limit", "offset", "filter", "output", "lastupdatesince", "typeid", "orderby", "simplefilter"]
 }

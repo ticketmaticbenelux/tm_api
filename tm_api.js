@@ -1,48 +1,76 @@
 "use strict"
 
-require('http').globalAgent.maxSockets = 5
-require('https').globalAgent.maxSockets = 5
+var http = require('http')
+var https = require('https')
+var crypto = require('crypto')
+var url = require('url')
+var fs = require('fs')
 
-const axios = require('axios')
-const fs = require('fs')
-const rest = require('rest')
-const mime = require('rest/interceptor/mime')
-const params = require('rest/interceptor/params')
-const moment = require('moment')
-const crypto = require('crypto')
-const util = require('util')
-const R = require('ramda')
-const split = require('split')
-const deepmerge = require('deepmerge')
-
-const client = rest.wrap(mime, { mime: 'application/json' }).wrap(params)
+http.globalAgent.maxSockets = 5
+https.globalAgent.maxSockets = 5
 
 const config = require('./tm3_api.json')
 
 let counter
 
-// API offset limit
 const LIMIT = 1000
 const QUERY_LIMIT = 1000
 
-// TM3 Authorization header
+function contains(arr, val) {
+	return arr.indexOf(val) !== -1
+}
+
+function clone(obj) {
+	return JSON.parse(JSON.stringify(obj))
+}
+
+function deepMerge(target, source) {
+	for (var key in source) {
+		if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key]) &&
+			target[key] && typeof target[key] === 'object' && !Array.isArray(target[key])) {
+			deepMerge(target[key], source[key])
+		} else {
+			target[key] = source[key]
+		}
+	}
+	return target
+}
+
+function formatUTCTimestamp() {
+	var now = new Date()
+	var y = now.getUTCFullYear()
+	var mo = String(now.getUTCMonth() + 1).padStart(2, '0')
+	var d = String(now.getUTCDate()).padStart(2, '0')
+	var h = String(now.getUTCHours()).padStart(2, '0')
+	var mi = String(now.getUTCMinutes()).padStart(2, '0')
+	var s = String(now.getUTCSeconds()).padStart(2, '0')
+	return y + '-' + mo + '-' + d + 'T' + h + ':' + mi + ':' + s
+}
+
 function getHeaders(client) {
-	const key = client.key
-	const auth_scheme = 'TM-HMAC-SHA256'
-	const algorithm = 'sha256'
-	const timestamp = moment().utc().format('YYYY-MM-DDTHH:mm:ss')
-	const payload = key + client.shortname + timestamp
-	const hmac = crypto.createHmac(algorithm, client.secret)
+	var key = client.key
+	var auth_scheme = 'TM-HMAC-SHA256'
+	var algorithm = 'sha256'
+	var timestamp = formatUTCTimestamp()
+	var payload = key + client.shortname + timestamp
+	var hmac = crypto.createHmac(algorithm, client.secret)
 	hmac.setEncoding('hex')
 	hmac.write(payload)
 	hmac.end()
-	const signature = hmac.read()
-	const auth_header = util.format('%s key=%s ts=%s sign=%s', auth_scheme, key, timestamp, signature)
-	return {'Authorization': auth_header}
+	var signature = hmac.read()
+	var auth_header = auth_scheme + ' key=' + key + ' ts=' + timestamp + ' sign=' + signature
+	return { 'Authorization': auth_header }
+}
+
+function formatUrl(template, args) {
+	var i = 0
+	return template.replace(/%[sd]/g, function () {
+		return i < args.length ? args[i++] : ''
+	})
 }
 
 function getURL(client, type, endpoint, id) {
-	if (!(R.contains(type, ['getList', 'get', 'post', 'put', 'delete']))) {
+	if (!contains(['getList', 'get', 'post', 'put', 'delete'], type)) {
 		return false
 	}
 
@@ -52,24 +80,19 @@ function getURL(client, type, endpoint, id) {
 
 	var url_template = config.schema + '://' + config.host + config.path + config.endpoints[endpoint]
 
-	if ((type == 'get' || type == 'put' || type == 'delete') && !R.contains(endpoint,config.no_extra_param)) {
+	if ((type === 'get' || type === 'put' || type === 'delete') && !contains(endpoint, config.no_extra_param)) {
 		url_template += '/%s'
 	}
 
-	var url
+	var shortname = client.shortname || '_'
 	if (id) {
-		if (typeof id == 'object') {
-			url = util.format(url_template, client.shortname || "_", id[0], id[1])
+		if (typeof id === 'object') {
+			return formatUrl(url_template, [shortname, id[0], id[1]])
 		}
-		else {
-			url = util.format(url_template, client.shortname || "_", id)
-		}
-	}
-	else {
-		url = util.format(url_template, client.shortname || "_")
+		return formatUrl(url_template, [shortname, id])
 	}
 
-	return url
+	return formatUrl(url_template, [shortname])
 }
 
 function getParams(payload) {
@@ -79,10 +102,8 @@ function getParams(payload) {
 
 	var params = {}
 
-	for(var key in payload) {
-
-		// Skip non-allowed optional attributes
-		if (!R.contains(key, config.params_optional)) {
+	for (var key in payload) {
+		if (!contains(key, config.params_optional)) {
 			console.log("Attribute skipped: %s", key)
 			continue
 		}
@@ -93,380 +114,528 @@ function getParams(payload) {
 	return params
 }
 
-async function _request(options) {
-	const data = await client(options)
-	return new Promise(function(resolve, reject) {
-		if (data.status.code == 200) {
-			resolve(data.entity)
-		}
-		else {
-			if (config.debug) {
-				console.log({message: 'API request failed', options: options, response_code: data.status.code, response: data.entity})
-			}
+function buildRequestOptions(options) {
+	var parsed = new url.URL(options.path)
 
-			const response = JSON.parse(data.entity)
-			var message
-			if (response.message && response.error) {
-				message = `${response.message}: ${response.error}`
-			}
-			else if (response.message) {
-				message = response.message
-			}
-			else {
-				message = 'Unknown error in Ticketmatic API'
-			}
-			reject(message)
+	if (options.params && Object.keys(options.params).length > 0) {
+		var keys = Object.keys(options.params)
+		for (var i = 0; i < keys.length; i++) {
+			parsed.searchParams.set(keys[i], options.params[keys[i]])
 		}
+	}
+
+	var reqHeaders = {
+		'Content-Type': 'application/json',
+		'Accept': 'application/json'
+	}
+
+	if (options.headers) {
+		var hkeys = Object.keys(options.headers)
+		for (var j = 0; j < hkeys.length; j++) {
+			reqHeaders[hkeys[j]] = options.headers[hkeys[j]]
+		}
+	}
+
+	var reqOptions = {
+		hostname: parsed.hostname,
+		port: parsed.port || undefined,
+		path: parsed.pathname + parsed.search,
+		method: options.method || 'GET',
+		headers: reqHeaders,
+		protocol: parsed.protocol
+	}
+
+	return { reqOptions: reqOptions, parsed: parsed }
+}
+
+function httpRequest(options) {
+	return new Promise(function (resolve, reject) {
+		var built = buildRequestOptions(options)
+		var reqOptions = built.reqOptions
+		var protocol = reqOptions.protocol === 'https:' ? https : http
+
+		var body = null
+		if (options.entity) {
+			body = JSON.stringify(options.entity)
+			reqOptions.headers['Content-Length'] = Buffer.byteLength(body)
+		}
+
+		var req = protocol.request(reqOptions, function (res) {
+			var chunks = []
+			res.on('data', function (chunk) { chunks.push(chunk) })
+			res.on('end', function () {
+				var rawBody = Buffer.concat(chunks).toString()
+				var entity
+				try {
+					entity = JSON.parse(rawBody)
+				} catch (e) {
+					entity = rawBody
+				}
+				resolve({
+					status: { code: res.statusCode },
+					entity: entity
+				})
+			})
+		})
+
+		req.on('error', reject)
+
+		if (body) {
+			req.write(body)
+		}
+		req.end()
+	})
+}
+
+function httpRequestBinary(options) {
+	return new Promise(function (resolve, reject) {
+		var built = buildRequestOptions(options)
+		var reqOptions = built.reqOptions
+		var protocol = reqOptions.protocol === 'https:' ? https : http
+
+		delete reqOptions.headers['Content-Type']
+		delete reqOptions.headers['Accept']
+
+		if (options.headers) {
+			var hkeys = Object.keys(options.headers)
+			for (var j = 0; j < hkeys.length; j++) {
+				reqOptions.headers[hkeys[j]] = options.headers[hkeys[j]]
+			}
+		}
+
+		var req = protocol.request(reqOptions, function (res) {
+			var chunks = []
+			res.on('data', function (chunk) { chunks.push(chunk) })
+			res.on('end', function () {
+				if (res.statusCode === 401) {
+					reject(new Error("TM API responds with status 'Unauthorized'"))
+					return
+				}
+				if (res.statusCode !== 200) {
+					reject(new Error('TM API error with status ' + res.statusCode))
+					return
+				}
+				resolve(Buffer.concat(chunks))
+			})
+		})
+
+		req.on('error', function (err) {
+			reject(new Error('TM API Error: ' + err.message))
+		})
+
+		if (options.bodyStream) {
+			options.bodyStream.pipe(req)
+		} else {
+			req.end()
+		}
+	})
+}
+
+function httpRequestStream(options) {
+	return new Promise(function (resolve, reject) {
+		var built = buildRequestOptions(options)
+		var reqOptions = built.reqOptions
+		var protocol = reqOptions.protocol === 'https:' ? https : http
+
+		var body = null
+		if (options.entity) {
+			body = JSON.stringify(options.entity)
+			reqOptions.headers['Content-Length'] = Buffer.byteLength(body)
+		}
+
+		var req = protocol.request(reqOptions, function (res) {
+			if (res.statusCode === 401) {
+				reject(new Error("TM API responds with status 'Unauthorized'"))
+				res.resume()
+				return
+			}
+			if (res.statusCode !== 200) {
+				reject(new Error('TM API error with status ' + res.statusCode))
+				res.resume()
+				return
+			}
+			resolve(res)
+		})
+
+		req.on('error', function (err) {
+			reject(new Error('TM API Error: ' + err.message))
+		})
+
+		if (body) {
+			req.write(body)
+		}
+		req.end()
+	})
+}
+
+function parseNdjsonStream(stream) {
+	return new Promise(function (resolve, reject) {
+		var arr = []
+		var buffer = ''
+
+		stream.on('data', function (chunk) {
+			buffer += chunk.toString()
+			var lines = buffer.split('\n')
+			buffer = lines.pop()
+			for (var i = 0; i < lines.length; i++) {
+				if (lines[i].trim()) {
+					arr.push(JSON.parse(lines[i]))
+				}
+			}
+		})
+
+		stream.on('end', function () {
+			if (buffer.trim()) {
+				arr.push(JSON.parse(buffer))
+			}
+			resolve(arr)
+		})
+
+		stream.on('error', reject)
+	})
+}
+
+function _request(options) {
+	return httpRequest(options).then(function (data) {
+		return new Promise(function (resolve, reject) {
+			if (data.status.code === 200) {
+				resolve(data.entity)
+			} else {
+				if (config.debug) {
+					console.log({ message: 'API request failed', options: options, response_code: data.status.code, response: data.entity })
+				}
+
+				var response = typeof data.entity === 'string' ? JSON.parse(data.entity) : data.entity
+				var message
+				if (response.message && response.error) {
+					message = response.message + ': ' + response.error
+				} else if (response.message) {
+					message = response.message
+				} else {
+					message = 'Unknown error in Ticketmatic API'
+				}
+				reject(message)
+			}
+		})
 	})
 }
 
 /**
  * Recursively loop through API results using offset
  */
-exports.getListAll = function(client, endpoint, payload) {
-	counter.get += 1;
+exports.getListAll = function (client, endpoint, payload) {
+	counter.get += 1
 	return getListRecursively(client, [], endpoint, payload)
 }
 
-exports.getListAllWithLookup = function(client, endpoint, payload) {
-	counter.get += 1;
-	const initial = {
+exports.getListAllWithLookup = function (client, endpoint, payload) {
+	counter.get += 1
+	var initial = {
 		data: [],
-		lookup: {},
+		lookup: {}
 	}
 	return getListRecursivelyWithLookup(client, initial, endpoint, payload)
 }
 
-async function getListRecursively(client, data, endpoint, payload) {
-	if (typeof payload == 'undefined') {
+function getListRecursively(client, data, endpoint, payload) {
+	if (typeof payload === 'undefined') {
 		payload = {}
 	}
 	if (!('limit' in payload)) {
 		payload.limit = LIMIT
-	}	
-
-	const result = await _getList(client, endpoint, payload)
-	if (!result) {
-		return
 	}
 
-	data.push(...result.data)
+	return _getList(client, endpoint, payload).then(function (result) {
+		if (!result) {
+			return
+		}
 
-	if (!(result.data) || result.data.length < LIMIT) {
-		return Promise.resolve(data)
-	}
+		data.push.apply(data, result.data)
 
-	if (!('offset' in payload)) {
-		payload.offset = LIMIT
-		payload.limit = LIMIT
-	}
-	else {
-		payload.offset += LIMIT
-		payload.limit = LIMIT
-	}
+		if (!result.data || result.data.length < LIMIT) {
+			return data
+		}
 
-	return getListRecursively(client, data, endpoint, payload)
+		if (!('offset' in payload)) {
+			payload.offset = LIMIT
+			payload.limit = LIMIT
+		} else {
+			payload.offset += LIMIT
+			payload.limit = LIMIT
+		}
+
+		return getListRecursively(client, data, endpoint, payload)
+	})
 }
 
-async function getListRecursivelyWithLookup(client, accum, endpoint, payload) {
-	if (typeof payload == 'undefined') {
+function getListRecursivelyWithLookup(client, accum, endpoint, payload) {
+	if (typeof payload === 'undefined') {
 		payload = {}
 	}
 	if (!('limit' in payload)) {
 		payload.limit = LIMIT
 	}
-	if (!("output" in payload)) {
-		payload.output = "withlookup"
+	if (!('output' in payload)) {
+		payload.output = 'withlookup'
 	}
 
-	const result = await _getList(client, endpoint, payload)
-	if (!result) {
-		console.log("No result")
-		return Promise.resolve(accum)
-	}
+	return _getList(client, endpoint, payload).then(function (result) {
+		if (!result) {
+			console.log('No result')
+			return accum
+		}
 
-	accum.data.push(...result.data)
-	accum.lookup = deepmerge(accum.lookup, result.lookup)
+		accum.data.push.apply(accum.data, result.data)
+		deepMerge(accum.lookup, result.lookup)
 
-	if (!(result.data) || result.data.length < LIMIT) {
-		return Promise.resolve(accum)
-	}
+		if (!result.data || result.data.length < LIMIT) {
+			return accum
+		}
 
-	if (!('offset' in payload)) {
-		payload.offset = LIMIT
-		payload.limit = LIMIT
-	}
-	else {
-		payload.offset += LIMIT
-		payload.limit = LIMIT
-	}
+		if (!('offset' in payload)) {
+			payload.offset = LIMIT
+			payload.limit = LIMIT
+		} else {
+			payload.offset += LIMIT
+			payload.limit = LIMIT
+		}
 
-	return getListRecursivelyWithLookup(client, accum, endpoint, payload)
+		return getListRecursivelyWithLookup(client, accum, endpoint, payload)
+	})
 }
 
 function _getList(client, endpoint, payload) {
+	var reqUrl = getURL(client, 'getList', endpoint)
 
-	var url = getURL(client, 'getList', endpoint)
-
-	if (!url) {
+	if (!reqUrl) {
 		return Promise.reject(new Error('Unknown getList: ' + endpoint))
 	}
 
 	var params = getParams(payload)
-	var options = { path: url, params: params }
+	var options = { method: 'GET', path: reqUrl, params: params }
 	var headers = getHeaders(client)
 	if (headers) {
-		options['headers'] = headers
+		options.headers = headers
 	}
 
 	return _request(options)
 }
 
-exports.getList = function(client, endpoint, payload) {
-	counter.get += 1;
+exports.getList = function (client, endpoint, payload) {
+	counter.get += 1
 	return _getList(client, endpoint, payload)
 }
 
-exports.get = function(client, endpoint, id, payload) {
+exports.get = function (client, endpoint, id, payload) {
+	var reqUrl = getURL(client, 'get', endpoint, id)
 
-	var url = getURL(client, 'get', endpoint, id)
-
-	if (!url) {
+	if (!reqUrl) {
 		return Promise.reject(new Error('Unknown get ' + endpoint))
 	}
 
 	var params = getParams(payload)
-	var options = { path: url, params: params }
+	var options = { method: 'GET', path: reqUrl, params: params }
 	var headers = getHeaders(client)
 	if (headers) {
-		options['headers'] = headers
+		options.headers = headers
 	}
 
-	counter.get += 1;
+	counter.get += 1
 	return _request(options)
 }
 
-exports.put = function(client, endpoint, id, payload) {
+exports.put = function (client, endpoint, id, payload) {
+	var reqUrl = getURL(client, 'put', endpoint, id)
 
-	var url = getURL(client, 'put', endpoint, id)
-
-	if (!url) {
+	if (!reqUrl) {
 		return Promise.reject(new Error('Unknown put ' + endpoint))
 	}
 
 	if (!payload) {
 		return Promise.reject('[TM API] No payload for PUT request.')
-	}	
+	}
 
-	if (Object.keys(payload).length == 0) {
+	if (Object.keys(payload).length === 0) {
 		return Promise.resolve()
 	}
 
-	var entity = payload
-	var options = { method: 'PUT', path: url, params: {}, entity: entity }
+	var options = { method: 'PUT', path: reqUrl, params: {}, entity: payload }
 	var headers = getHeaders(client)
 	if (headers) {
-		options['headers'] = headers
+		options.headers = headers
 	}
 
-	counter.put += 1;
+	counter.put += 1
 	return _request(options)
 }
 
-var _post = function(client, endpoint, id, payload) {
+var _post = function (client, endpoint, id, payload) {
+	var reqUrl = getURL(client, 'post', endpoint, id)
 
-	var url = getURL(client, 'post', endpoint, id)
-
-	if (!url) {
+	if (!reqUrl) {
 		return Promise.reject(new Error('Unknown post ' + endpoint))
 	}
 
-	var entity = payload
-	var options = { method: 'POST', path: url, params: {}, entity: entity }
+	var options = { method: 'POST', path: reqUrl, params: {}, entity: payload }
 	var headers = getHeaders(client)
 	if (headers) {
-		options['headers'] = headers
+		options.headers = headers
 	}
 
 	return _request(options)
 }
 
-exports.post = function(client, endpoint, id, payload) {
-	counter.post += 1;
+exports.post = function (client, endpoint, id, payload) {
+	counter.post += 1
 	return _post(client, endpoint, id, payload)
 }
 
-exports.del = function(client, endpoint, id, payload) {
+exports.del = function (client, endpoint, id, payload) {
+	var reqUrl = getURL(client, 'delete', endpoint, id)
 
-	var url = getURL(client, 'delete', endpoint, id)
-
-	if (!url) {
+	if (!reqUrl) {
 		return Promise.reject(new Error('Unknown delete ' + endpoint))
 	}
 
-	var entity = payload
-	var options = { method: 'DELETE', path: url, params: {}, entity: entity }
+	var options = { method: 'DELETE', path: reqUrl, params: {}, entity: payload }
 	var headers = getHeaders(client)
 	if (headers) {
-		options['headers'] = headers
+		options.headers = headers
 	}
 
-	counter.delete += 1;
+	counter.delete += 1
 	return _request(options)
 }
 
 /**
  * Recursively loop through API results using offset
  */
-exports.queryAll = function(client, sql) {
+exports.queryAll = function (client, sql) {
 	var payload = {
 		query: sql,
 		limit: QUERY_LIMIT
 	}
 
-	counter.query += 1;
+	counter.query += 1
 	return queryRecursively(client, [], payload)
 }
 
-const queryRecursively = async (client, data, payload) => {
-
-	if (typeof payload == 'undefined') {
+function queryRecursively(client, data, payload) {
+	if (typeof payload === 'undefined') {
 		payload = {}
 	}
 
-	const result = await _query(client, payload)
+	return _query(client, payload).then(function (result) {
+		if (!result.results) {
+			return
+		}
 
-	if (!result.results) {
-		return
-	}
+		data.push.apply(data, result.results)
 
-	data.push(...result.results)
+		if (!result.results || result.results.length < QUERY_LIMIT) {
+			return data
+		}
 
-	if (!(result.results) || result.results.length < QUERY_LIMIT) {
-		return Promise.resolve(data)
-	}
+		if (!('offset' in payload)) {
+			payload.offset = QUERY_LIMIT
+			payload.limit = QUERY_LIMIT
+		} else {
+			payload.offset += QUERY_LIMIT
+			payload.limit = QUERY_LIMIT
+		}
 
-	if (!('offset' in payload)) {
-		payload.offset = QUERY_LIMIT
-		payload.limit = QUERY_LIMIT
-	}
-	else {
-		payload.offset += QUERY_LIMIT
-		payload.limit = QUERY_LIMIT
-	}
-
-	return queryRecursively(client, data, payload)
+		return queryRecursively(client, data, payload)
+	})
 }
 
-const _query = (client, payload) => _post(client, 'queries', null, payload)
+function _query(client, payload) {
+	return _post(client, 'queries', null, payload)
+}
 
-exports.query = async function(client, sql, limit) {
+exports.query = function (client, sql, limit) {
 	var payload = {
 		limit: limit,
 		query: sql
 	}
 
-	counter.query += 1;
-	const res = await _query(client, payload)
-	return res.results
+	counter.query += 1
+	return _query(client, payload).then(function (res) {
+		return res.results
+	})
 }
 
-async function postWithStream(config) {
-    try {
-        const response = await axios(config);
-        return response;
-    } catch (error) {
-        if (error.response) {
-            if (error.response.status === 401) {
-                throw new Error(`TM API responds with status 'Unauthorized'`);
-            }
-            throw new Error(`TM API error with status ${error.response.status}`);
-        } else if (error.request) {
-            throw new Error(`TM API Error: Request was made but no response was received`);
-        } else {
-            throw new Error(`TM API Error: ${error.message}`);
-        }
-    }
+exports.export = function (client, sql) {
+	var reqUrl = getURL(client, 'post', 'export')
+
+	var options = {
+		method: 'POST',
+		path: reqUrl,
+		params: {},
+		entity: { query: sql }
+	}
+	var headers = getHeaders(client)
+	if (headers) {
+		options.headers = headers
+	}
+
+	counter.export += 1
+
+	return httpRequestStream(options).then(function (stream) {
+		return parseNdjsonStream(stream)
+	})
 }
 
-exports.export = async function(client, sql) {
-    const url = getURL(client, 'post', 'export');
+exports.saveimage = function (client, id, filepath) {
+	var reqUrl = getURL(client, 'post', 'saveimage', id)
 
-    const config = {
-        method: 'post',
-        url,
-        headers: getHeaders(client),
-        responseType: 'stream', // Gebruik de correcte optie voor streams in axios
-        data: { query: sql }
-    };
+	var options = {
+		method: 'POST',
+		path: reqUrl,
+		params: {},
+		bodyStream: fs.createReadStream(filepath)
+	}
+	var headers = getHeaders(client)
+	if (headers) {
+		options.headers = headers
+	}
 
-    const arr = [];
-
-    counter.export += 1;
-
-    const response = await postWithStream(config);
-    return new Promise((resolve, reject) => {
-        response.data.pipe(split(JSON.parse, null, { trailing: false }))
-        .on('data', obj => arr.push(obj))
-        .on('end', () => resolve(arr))
-        .on('error', err => reject(err));
-    });
+	counter.post += 1
+	return httpRequestBinary(options)
 }
 
-exports.saveimage = function(client, id, filepath) {
-    return new Promise(async (resolve, reject) => {
-        var url = getURL(client, 'post', 'saveimage', id);
-        var config = {
-            method: 'post',
-            url,
-            headers: getHeaders(client),
-            data: fs.createReadStream(filepath),
-            responseType: 'arraybuffer', // Aanpassing voor axios 1.3.1
-        };
-
-        counter.post += 1;
-        try {
-            const response = await axios(config);
-            resolve(response.data);
-        } catch (err) {
-            reject(err);
-        }
-    });
+exports.setDebug = function (input) {
+	config.debug = !!input
 }
 
-exports.setDebug = function(input) {
-	config.debug = (input) ? true : false
-}
-
-exports.setSchema = function(schema) {
-	if (!["http", "https"].includes(schema)) {
-		console.log("Could not set schema: %s", schema)
+exports.setSchema = function (schema) {
+	if (!contains(['http', 'https'], schema)) {
+		console.log('Could not set schema: %s', schema)
 		return
 	}
 
-	config.schema = schema;
+	config.schema = schema
 }
 
-exports.setHost = function(host) {
-	if (!["apps.ticketmatic.com", "test.ticketmatic.com", "qa.ticketmatic.com", "localhost"].includes(host)) {
-		console.log("Could not set host: %s", host)
+exports.setHost = function (host) {
+	if (!contains(['apps.ticketmatic.com', 'test.ticketmatic.com', 'qa.ticketmatic.com', 'localhost'], host)) {
+		console.log('Could not set host: %s', host)
 		return
 	}
-	if (host === "localhost") {
-		config.host = `${host}:9002`
-		config.schema = `http`
-	}
-	else {
+	if (host === 'localhost') {
+		config.host = host + ':9002'
+		config.schema = 'http'
+	} else {
 		config.host = host
 	}
 }
 
-// Statistics related functions
-exports.getStats = () => R.clone(counter)
+exports.getStats = function () {
+	return clone(counter)
+}
 
-var resetStats = function() {
+var resetStats = function () {
 	counter = { get: 0, put: 0, post: 0, delete: 0, query: 0, export: 0 }
 }
-resetStats() // Initialize the statistics
+resetStats()
 
 exports.resetStats = resetStats

@@ -1,8 +1,6 @@
 "use strict"
 
-var env = require('node-env-file')
-
-env(__dirname + '/../.env')
+require('dotenv').config({ path: __dirname + '/../.env' })
 
 var api = require("../tm_api.js")
 
