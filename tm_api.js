@@ -16,8 +16,8 @@ let counter
 const LIMIT = 1000
 const QUERY_LIMIT = 1000
 
-function contains(arr, val) {
-	return arr.indexOf(val) !== -1
+function listContains(val, list) {
+	return list.indexOf(val) !== -1
 }
 
 function clone(obj) {
@@ -70,7 +70,7 @@ function formatUrl(template, args) {
 }
 
 function getURL(client, type, endpoint, id) {
-	if (!contains(['getList', 'get', 'post', 'put', 'delete'], type)) {
+	if (!listContains(type, ['getList', 'get', 'post', 'put', 'delete'])) {
 		return false
 	}
 
@@ -80,7 +80,7 @@ function getURL(client, type, endpoint, id) {
 
 	var url_template = config.schema + '://' + config.host + config.path + config.endpoints[endpoint]
 
-	if ((type === 'get' || type === 'put' || type === 'delete') && !contains(endpoint, config.no_extra_param)) {
+	if ((type === 'get' || type === 'put' || type === 'delete') && !listContains(endpoint, config.no_extra_param)) {
 		url_template += '/%s'
 	}
 
@@ -103,7 +103,7 @@ function getParams(payload) {
 	var params = {}
 
 	for (var key in payload) {
-		if (!contains(key, config.params_optional)) {
+		if (!listContains(key, config.params_optional)) {
 			console.log("Attribute skipped: %s", key)
 			continue
 		}
@@ -608,7 +608,7 @@ exports.setDebug = function (input) {
 }
 
 exports.setSchema = function (schema) {
-	if (!contains(['http', 'https'], schema)) {
+	if (!listContains(schema, ['http', 'https'])) {
 		console.log('Could not set schema: %s', schema)
 		return
 	}
@@ -617,7 +617,7 @@ exports.setSchema = function (schema) {
 }
 
 exports.setHost = function (host) {
-	if (!contains(['apps.ticketmatic.com', 'test.ticketmatic.com', 'qa.ticketmatic.com', 'localhost'], host)) {
+	if (!listContains(host, ['apps.ticketmatic.com', 'test.ticketmatic.com', 'qa.ticketmatic.com', 'localhost'])) {
 		console.log('Could not set host: %s', host)
 		return
 	}

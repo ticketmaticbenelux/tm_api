@@ -1,6 +1,6 @@
 {
   "name": "tm_api",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "TM3 API wrapper",
   "main": "tm_api.js",
   "repository": {
@@ -8,7 +8,7 @@
     "url": "https://github.com/ticketmaticbenelux/tm_api.git"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test/unit/get-params.test.js"
   },
   "keywords": [
     "ticketmatic"
