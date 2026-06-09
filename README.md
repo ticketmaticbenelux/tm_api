@@ -1,17 +1,19 @@
 # tm_api
 
-`tm_api` is a Node.js wrapper for the Ticketmatic 3 API.
+`tm_api` is a Node.js wrapper for the [Ticketmatic 3 API](https://www.ticketmatic.com/docs/api/).
 
 ## Installation
 
-You need a Personal Access Token to be able to use this package.
+```
+npm install node-env-file
+npm install https://github.com/ticketmaticbenelux/tm_api
+```
 
-Example of dependency in `package.json`:
+If you have a Node.js project with `package.json`, use `--save` to add the dependencies to `package.json`:
 
-```javascript
-  "dependencies": {
-    "tm_api": "git+https://abcxyz:x-oauth-basic@github.com/rutgernation/tm_api.git"
-  }
+```
+npm install --save node-env-file
+npm install --save https://github.com/ticketmaticbenelux/tm_api
 ```
 
 ## Introduction
@@ -55,26 +57,57 @@ api.put(client, "contacts", 10001, payload)
 Delete contact:
 
 ```javascript
-api.delete(client, "contacts", 10002)
+api.del(client, "contacts", 10002)
 ```
 
 Execute query:
 
 ```javascript
-let query = "select * from tm.contact limit 10"
+let query = "select * from tm.contact"
 api.query(client, query)
 ```
 
+Execute query with a limit:
+
+```javascript
+let query = "select * from tm.contact"
+api.query(client, query, 250)
+```
+
+Execute query with large number of results:
+
+```javascript
+let query = "select * from tm.contact"
+api.export(client, query)
+```
+
+## Debug mode
+
+To output API errors:
+
+```
+const api = require("tm_api")
+api.setDebug(true)
+```
+
 ## Usage
+
+Create `.env` file with the right environment variables:
+
+```
+SHORTNAME=xxx
+API_KEY=XXX
+API_SECRET=xxx
+```
 
 Example of usage:
 
 ```javascript
 require('dotenv').config()
 
-var api = require("tm_api")
+const api = require("tm_api")
 
-var client = {
+const client = {
 	shortname: process.env.SHORTNAME,
 	key: process.env.API_KEY,
 	secret: process.env.API_SECRET
